@@ -25,7 +25,7 @@ templates = Jinja2Templates(directory=str(FRONTEND_DIR))
 
 def get_db_connection():
     """Создает соединение с SQLite базой"""
-    db_path = BASE_DIR / "data" / "shop.db"
+    db_path = BASE_DIR / "data" / "school.db"
     # Создаем папку data если её нет
     db_path.parent.mkdir(exist_ok=True)
 
