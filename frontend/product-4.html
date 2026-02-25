@@ -274,35 +274,75 @@
             </div>
         </div>
 
-        <div class="reviews-section">
-            <h2>Отзывы покупателей</h2>
+        <!-- Секция с отзывами -->
+<div class="reviews-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">Отзывы покупателей <span id="reviewsCount" style="font-size: 0.6em; color: var(--gray-dark);">0</span></h2>
+    </div>
+    
+    <!-- Форма добавления отзыва -->
+    <div style="background: var(--light-beige); padding: 20px; border-radius: var(--radius-md); margin-bottom: 30px;">
+        <h3 style="margin-bottom: 15px;">Оставить отзыв</h3>
+        <form id="reviewForm">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">Ваша оценка:</label>
+                <div style="display: flex; gap: 10px;">
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="rating" value="1" style="display: none;">
+                        <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
+                    </label>
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="rating" value="2" style="display: none;">
+                        <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
+                    </label>
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="rating" value="3" style="display: none;">
+                        <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
+                    </label>
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="rating" value="4" style="display: none;">
+                        <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
+                    </label>
+                    <label style="cursor: pointer;">
+                        <input type="radio" name="rating" value="5" style="display: none;">
+                        <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
+                    </label>
+                </div>
+            </div>
             
-            <div class="review-card">
-                <div class="review-header">
-                    <span class="review-author">Ольга Новикова</span>
-                    <span class="review-date">20 февраля 2025</span>
-                </div>
-                <div class="review-rating">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                </div>
-                <div class="review-text">
-                    Идеально вписался в маленькую кухню. Очень удобный и легко чистится. Рекомендую!
-                </div>
+            <div style="margin-bottom: 15px;">
+                <label for="reviewText" style="display: block; margin-bottom: 5px; font-weight: bold;">Ваш отзыв:</label>
+                <textarea id="reviewText" rows="4" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: var(--radius-sm);" placeholder="Поделитесь впечатлениями о товаре..."></textarea>
             </div>
+            
+            <button type="submit" class="btn btn-primary" style="padding: 10px 30px;">
+                <i class="fas fa-paper-plane"></i> Отправить отзыв
+            </button>
+        </form>
+    </div>
+    
+    <!-- Контейнер для отзывов -->
+    <div id="reviewsContainer">
+        <!-- Сюда будут подгружаться отзывы -->
+    </div>
+</div>
 
-            <div class="review-card">
-                <div class="review-header">
-                    <span class="review-author">Игорь Смирнов</span>
-                    <span class="review-date">3 февраля 2025</span>
-                </div>
-                <div class="review-rating">
-                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                </div>
-                <div class="review-text">
-                    Хороший диван за свои деньги. Собрали быстро, сидеть удобно. Немного жестковат, но для кухни норм.
-                </div>
-            </div>
-        </div>
+<!-- Стили для звёздочек -->
+<style>
+    .rating-star {
+        transition: color 0.3s;
+    }
+    
+    input[type="radio"]:checked + .rating-star,
+    .rating-star:hover,
+    .rating-star:hover ~ .rating-star {
+        color: gold !important;
+    }
+    
+    label:hover .rating-star {
+        color: gold;
+    }
+</style>
     </div>
 
     <footer class="school-footer">
@@ -343,5 +383,167 @@
             }
         });
     </script>
+    <!-- ========== СИСТЕМА ОТЗЫВОВ ========== -->
+<script>
+// Ключ для хранения отзывов в localStorage (уникальный для каждого товара)
+const STORAGE_KEY = 'reviews_product_' + getProductId();
+
+// Получаем ID товара из URL или из названия
+function getProductId() {
+    // Извлекаем ID из имени файла (product-1.html -> 1)
+    const path = window.location.pathname;
+    const match = path.match(/product-(\d+)\.html/);
+    return match ? match[1] : '1';
+}
+
+// Данные текущего пользователя (если авторизован)
+function getCurrentUserName() {
+    const userStr = localStorage.getItem('currentUser');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            return user.full_name || user.username || 'Пользователь';
+        } catch (e) {
+            return 'Гость';
+        }
+    }
+    return 'Гость';
+}
+
+// Загрузка отзывов из localStorage
+function loadReviews() {
+    const savedReviews = localStorage.getItem(STORAGE_KEY);
+    return savedReviews ? JSON.parse(savedReviews) : [];
+}
+
+// Сохранение отзывов в localStorage
+function saveReviews(reviews) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
+}
+
+// Добавление нового отзыва
+function addReview(event) {
+    event.preventDefault();
+    
+    
+    // Получаем данные из формы
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+    const text = document.getElementById('reviewText').value.trim();
+    
+    // Валидация
+    if (!rating) {
+        alert('Пожалуйста, поставьте оценку');
+        return;
+    }
+    
+    if (!text) {
+        alert('Пожалуйста, напишите отзыв');
+        return;
+    }
+    
+    if (text.length < 10) {
+        alert('Отзыв должен быть не менее 10 символов');
+        return;
+    }
+    
+    // Создаём новый отзыв
+    const newReview = {
+        id: Date.now(), // уникальный ID
+        author: getCurrentUserName(),
+        date: new Date().toLocaleDateString('ru-RU'),
+        rating: parseInt(rating),
+        text: text,
+        verified: true // отметка "проверенный покупатель"
+    };
+    
+    // Загружаем существующие отзывы и добавляем новый
+    const reviews = loadReviews();
+    reviews.unshift(newReview); // добавляем в начало
+    
+    // Сохраняем
+    saveReviews(reviews);
+    
+    // Очищаем форму
+    document.getElementById('reviewText').value = '';
+    document.querySelector('input[name="rating"]:checked').checked = false;
+    
+    // Перерисовываем отзывы
+    renderReviews();
+    
+    // Показываем уведомление
+    alert('✅ Спасибо! Ваш отзыв добавлен');
+}
+
+// Рендеринг отзывов
+function renderReviews() {
+    const reviews = loadReviews();
+    const container = document.getElementById('reviewsContainer');
+    const counter = document.getElementById('reviewsCount');
+    
+    if (!container) return;
+    
+    // Обновляем счётчик
+    if (counter) {
+        counter.textContent = reviews.length;
+    }
+    
+    if (reviews.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--gray-dark);">
+                <i class="fas fa-comment" style="font-size: 3em; margin-bottom: 15px; opacity: 0.3;"></i>
+                <p>Пока нет отзывов. Будьте первым!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Сортируем по дате (новые сверху)
+    reviews.sort((a, b) => b.id - a.id);
+    
+    let html = '';
+    reviews.forEach(review => {
+        // Генерируем звёздочки
+        let stars = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= review.rating) {
+                stars += '<i class="fas fa-star" style="color: gold;"></i>';
+            } else {
+                stars += '<i class="far fa-star" style="color: #ccc;"></i>';
+            }
+        }
+        
+        html += `
+            <div class="review-card" style="margin-bottom: 20px;">
+                <div class="review-header">
+                    <span class="review-author">
+                        <i class="fas fa-user-circle"></i> ${review.author}
+                        ${review.verified ? '<span style="color: var(--success-green); font-size: 0.8em; margin-left: 5px;">✓ проверен</span>' : ''}
+                    </span>
+                    <span class="review-date">${review.date}</span>
+                </div>
+                <div class="review-rating" style="margin: 10px 0;">
+                    ${stars}
+                </div>
+                <div class="review-text" style="background: white; padding: 15px; border-radius: var(--radius-md);">
+                    ${review.text}
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    renderReviews();
+    
+    // Добавляем обработчик для формы, если она есть
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', addReview);
+    }
+});
+</script>
 </body>
 </html>
