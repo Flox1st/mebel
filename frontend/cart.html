@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Корзина - Мебельный магазин "Уютный Дом"</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="school-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="school-logo">
+                    <div class="logo-placeholder">🪑</div>
+                </div>
+                <div class="school-titles">
+                    <h1 class="school-name">Мебельный магазин "Уютный Дом"</h1>
+                    <p class="school-motto">Создаём уют в вашем доме с 2005 года</p>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <div class="login-form">
+                    <input type="text" placeholder="Логин" id="loginInput">
+                    <input type="password" placeholder="Пароль" id="passwordInput">
+                    <button onclick="handleLogin()">Войти</button>
+                    <a href="/register" style="margin-top: 8px; text-align: center; display: block; color: white; font-size: 12px; text-decoration: none;">
+                        Регистрация
+                    </a>
+                </div>
+                <div class="user-view" id="userView" style="display: none;">
+                    <span id="userGreeting"></span>
+                    <button onclick="handleLogout()">Выйти</button>
+                </div>
+                
+                <div class="cart-icon">
+                    <a href="cart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Корзина</span>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Главная</a>
+            <a href="products.html" class="nav-link">Каталог</a>
+            <a href="about.html" class="nav-link">О нас</a>
+            <a href="contacts.html" class="nav-link">Контакты</a>
+        </div>
+    </nav>
+
+    <!-- Страница корзины -->
+    <div class="cart-page">
+        <div class="cart-container">
+            <!-- Заголовок -->
+            <div class="cart-header">
+                <h1>Ваша корзина</h1>
+                <p>Проверьте товары перед оформлением заказа</p>
+            </div>
+
+            <!-- Блок для сообщений о необходимости авторизации -->
+            <div id="authMessage" style="display: none; background: #fff5f5; border-left: 4px solid var(--danger-red); padding: 20px; margin-bottom: 20px; border-radius: var(--radius-md);">
+                <h3 style="color: var(--danger-red); margin-bottom: 10px;">
+                    <i class="fas fa-exclamation-triangle"></i> Требуется авторизация
+                </h3>
+                <p style="margin-bottom: 15px;">Для оформления заказа необходимо войти в систему.</p>
+                <a href="/" class="btn btn-primary" style="display: inline-block;">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </a>
+                <a href="/register" class="btn btn-outline" style="display: inline-block; margin-left: 10px;">
+                    Зарегистрироваться
+                </a>
+            </div>
+
+            <!-- Основной контент -->
+            <div id="cartContent">
+                <!-- Корзина загружается через JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно оформления заказа -->
+    <div id="checkoutModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Оформление заказа</h2>
+                <button class="close-modal" onclick="closeCheckoutModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label for="fullName">ФИО <span class="required">*</span></label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Телефон <span class="required">*</span></label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deliveryMethod">Способ получения</label>
+                        <select id="deliveryMethod" required>
+                            <option value="">Выберите способ</option>
+                            <option value="pickup">Самовывоз из магазина</option>
+                            <option value="delivery">Доставка по адресу</option>
+                        </select>
+                    </div>
+                    
+                    <div id="addressField" style="display: none;">
+                        <div class="form-group">
+                            <label for="address">Адрес доставки</label>
+                            <input type="text" id="address">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comment">Комментарий к заказу</label>
+                        <textarea id="comment" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <h3>Итого к оплате: <span id="modalTotal">0</span> ₽</h3>
+                    </div>
+                    
+                    <button type="submit" class="submit-order-btn">Подтвердить заказ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="school-footer">
+        <div class="footer-container">
+            <div class="footer-info">
+                <p>&copy; 2025 Мебельный магазин "Уютный Дом". Все права защищены.</p>
+                <p>Телефон: +7 (495) 123-45-67 | Email: info@uytniydom.ru</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/auth.js"></script>
+    
+    <script>
+        // ===== ФУНКЦИЯ ПРОВЕРКИ АВТОРИЗАЦИИ =====
+        function isUserLoggedIn() {
+            // Проверяем оба возможных ключа (для совместимости)
+            return localStorage.getItem('authToken') !== null || 
+                   localStorage.getItem('userLoggedIn') === 'true';
+        }
+
+        // ===== УПРАВЛЕНИЕ КОРЗИНОЙ =====
+        const CartManager = {
+            // Загрузить корзину
+            loadCart() {
+                const savedCart = localStorage.getItem('furnitureCart');
+                return savedCart ? JSON.parse(savedCart) : {
+                    items: [],
+                    total: 0,
+                    count: 0
+                };
+            },
+            
+            // Сохранить корзину
+            saveCart(cart) {
+                localStorage.setItem('furnitureCart', JSON.stringify(cart));
+                this.updateCartCount(cart);
+            },
+            
+            // Обновить счетчик в шапке
+            updateCartCount(cart) {
+                const cartCountElement = document.getElementById('cartCount');
+                if (cartCountElement) {
+                    cartCountElement.textContent = cart.count || 0;
+                }
+            },
+            
+            // Пересчитать корзину
+            recalculate(cart) {
+                cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                cart.total = cart.items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+                return cart;
+            },
+            
+            // Удалить товар
+            removeItem(productId) {
+                let cart = this.loadCart();
+                cart.items = cart.items.filter(item => item.id != productId);
+                cart = this.recalculate(cart);
+                this.saveCart(cart);
+                return cart;
+            },
+            
+            // Изменить количество
+            updateQuantity(productId, newQuantity) {
+                if (newQuantity < 1) return this.removeItem(productId);
+                
+                let cart = this.loadCart();
+                const item = cart.items.find(item => item.id == productId);
+                if (item) {
+                    item.quantity = newQuantity;
+                    cart = this.recalculate(cart);
+                    this.saveCart(cart);
+                }
+                return cart;
+            },
+            
+            // Очистить корзину
+            clearCart() {
+                const emptyCart = { items: [], total: 0, count: 0 };
+                this.saveCart(emptyCart);
+                return emptyCart;
+            }
+        };
+
+        // ===== РЕНДЕРИНГ КОРЗИНЫ =====
+        function renderCart() {
+            const cart = CartManager.loadCart();
+            const container = document.getElementById('cartContent');
+            const authMessage = document.getElementById('authMessage');
+            const loggedIn = isUserLoggedIn();
+            
+            // Показываем или скрываем сообщение об авторизации
+            if (authMessage) {
+                authMessage.style.display = loggedIn ? 'none' : 'block';
+            }
+            
+            if (!cart.items || cart.items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h2>Ваша корзина пуста</h2>
+                        <p>Добавьте мебель из нашего каталога</p>
+                        <a href="products.html" class="continue-shopping-btn">
+                            <i class="fas fa-arrow-left"></i> Перейти в каталог
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Кнопка оформления заказа в зависимости от авторизации
+            const checkoutButton = loggedIn 
+                ? `<button class="checkout-btn" onclick="openCheckoutModal()">
+                       <i class="fas fa-credit-card"></i> Оформить заказ
+                   </button>`
+                : `<a href="/" class="checkout-btn" style="display: block; text-align: center;">
+                       <i class="fas fa-sign-in-alt"></i> Войти для оформления
+                   </a>`;
+            
+            container.innerHTML = `
+                <div class="cart-content">
+                    <!-- Список товаров -->
+                    <div class="cart-items">
+                        ${cart.items.map(item => `
+                            <div class="cart-item" data-id="${item.id}">
+                                <div class="cart-item-image">
+                                    <span style="font-size: 3em;">${item.image || '🪑'}</span>
+                                </div>
+                                <div class="cart-item-details">
+                                    <h3 class="cart-item-title">${item.name || 'Товар'}</h3>
+                                    <div class="cart-item-price">${(item.price || 0).toLocaleString()} ₽</div>
+                                </div>
+                                <div class="cart-item-controls">
+                                    <div class="quantity-controls">
+                                        <button class="quantity-btn" onclick="changeQuantity(${item.id}, ${(item.quantity || 1) - 1})">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" 
+                                               class="quantity-input" 
+                                               value="${item.quantity || 1}" 
+                                               min="1" 
+                                               max="99"
+                                               onchange="updateQuantity(${item.id}, this.value)">
+                                        <button class="quantity-btn" onclick="changeQuantity(${item.id}, ${(item.quantity || 1) + 1})">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="item-total">
+                                        <strong>${((item.price || 0) * (item.quantity || 1)).toLocaleString()} ₽</strong>
+                                    </div>
+                                    <button class="remove-item-btn" onclick="removeFromCart(${item.id})">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Итоги и оформление -->
+                    <div class="cart-sidebar">
+                        <div class="cart-total-section">
+                            <h2>Итоги заказа</h2>
+                            
+                            <div class="summary-item">
+                                <span>Товары (${cart.count || 0} шт.)</span>
+                                <span>${cart.total.toLocaleString()} ₽</span>
+                            </div>
+                            
+                            <div class="summary-item total">
+                                <span>Итого к оплате:</span>
+                                <span id="cartTotal">${cart.total.toLocaleString()} ₽</span>
+                            </div>
+                            
+                            ${checkoutButton}
+                            
+                            <a href="products.html" class="continue-shopping-btn" style="display: block; text-align: center; margin-top: 15px;">
+                                <i class="fas fa-arrow-left"></i> Продолжить покупки
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== ФУНКЦИИ УПРАВЛЕНИЯ КОРЗИНОЙ =====
+        function changeQuantity(productId, newQuantity) {
+            if (newQuantity < 1) {
+                removeFromCart(productId);
+                return;
+            }
+            
+            CartManager.updateQuantity(productId, newQuantity);
+            renderCart();
+        }
+
+        function updateQuantity(productId, value) {
+            const quantity = parseInt(value);
+            if (isNaN(quantity) || quantity < 1) return;
+            changeQuantity(productId, quantity);
+        }
+
+        function removeFromCart(productId) {
+            if (confirm('Удалить товар из корзины?')) {
+                CartManager.removeItem(productId);
+                renderCart();
+                showNotification('Товар удален из корзины');
+            }
+        }
+
+        // ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
+        function openCheckoutModal() {
+            if (!isUserLoggedIn()) {
+                alert('Для оформления заказа необходимо войти в систему');
+                return;
+            }
+            
+            const cart = CartManager.loadCart();
+            if (cart.items.length === 0) {
+                alert('Корзина пуста!');
+                return;
+            }
+            
+            document.getElementById('modalTotal').textContent = cart.total.toLocaleString();
+            document.getElementById('checkoutModal').style.display = 'block';
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            document.getElementById('checkoutForm').reset();
+        }
+
+        // ===== УВЕДОМЛЕНИЯ =====
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--success-green);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: var(--radius-md);
+                    box-shadow: var(--shadow-lg);
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                ">
+                    <i class="fas fa-check-circle"></i> ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обновляем счетчик корзины
+            CartManager.updateCartCount(CartManager.loadCart());
+            
+            // Рендерим корзину
+            renderCart();
+            
+            // Обработка формы заказа
+            document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!isUserLoggedIn()) {
+                    alert('Необходимо войти в систему');
+                    return;
+                }
+                
+                alert('✅ Спасибо за заказ! В ближайшее время с вами свяжется менеджер.');
+                CartManager.clearCart();
+                renderCart();
+                closeCheckoutModal();
+            });
+            
+            // Показываем/скрываем поле адреса
+            document.getElementById('deliveryMethod')?.addEventListener('change', function() {
+                const addressField = document.getElementById('addressField');
+                if (addressField) {
+                    addressField.style.display = this.value === 'delivery' ? 'block' : 'none';
+                }
+            });
+            
+            // Закрытие модального окна при клике вне его
+            window.addEventListener('click', function(e) {
+                const modal = document.getElementById('checkoutModal');
+                if (e.target === modal) {
+                    closeCheckoutModal();
+                }
+            });
+        });
+
+        // Стили для модального окна
+        const modalStyles = `
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+            }
+            
+            .modal-content {
+                background: white;
+                margin: 5% auto;
+                width: 90%;
+                max-width: 500px;
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-lg);
+                animation: slideUp 0.3s ease;
+            }
+            
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: var(--space-lg);
+                border-bottom: 1px solid #eee;
+            }
+            
+            .modal-header h2 {
+                color: var(--primary-wood);
+                margin: 0;
+            }
+            
+            .close-modal {
+                background: none;
+                border: none;
+                font-size: 2em;
+                cursor: pointer;
+                color: var(--gray-dark);
+            }
+            
+            .modal-body {
+                padding: var(--space-lg);
+            }
+            
+            .submit-order-btn {
+                width: 100%;
+                padding: 15px;
+                background: linear-gradient(135deg, var(--primary-wood), var(--secondary-wood));
+                color: white;
+                border: none;
+                border-radius: var(--radius-sm);
+                font-size: 1.1em;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            
+            .order-summary {
+                background: var(--gray-light);
+                padding: var(--space-md);
+                border-radius: var(--radius-sm);
+                margin: var(--space-md) 0;
+                text-align: center;
+            }
+            
+            @keyframes slideUp {
+                from {
+                    transform: translateY(50px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = modalStyles;
+        document.head.appendChild(styleSheet);
+    </script>
+</body>
+</html>

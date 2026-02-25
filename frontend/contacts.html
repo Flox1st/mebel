@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты - Мебельный магазин "Уютный Дом"</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="school-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="school-logo">
+                    <div class="logo-placeholder">🪑</div>
+                </div>
+                <div class="school-titles">
+                    <h1 class="school-name">Мебельный магазин "Уютный Дом"</h1>
+                    <p class="school-motto">Создаём уют в вашем доме с 2005 года</p>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <div class="login-form">
+                    <input type="text" placeholder="Логин" id="loginInput">
+                    <input type="password" placeholder="Пароль" id="passwordInput">
+                    <button onclick="handleLogin()">Войти</button>
+                    <a href="/register" style="margin-top: 8px; text-align: center; display: block; color: white; font-size: 12px; text-decoration: none;">
+                        Регистрация
+                    </a>
+                </div>
+                <div class="user-view" id="userView" style="display: none;">
+                    <span id="userGreeting"></span>
+                    <button onclick="handleLogout()">Выйти</button>
+                </div>
+                
+                <div class="cart-icon">
+                    <a href="cart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Корзина</span>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Главная</a>
+            <a href="products.html" class="nav-link">Каталог</a>
+            <a href="about.html" class="nav-link">О нас</a>
+            <a href="contacts.html" class="nav-link active">Контакты</a>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="main-container">
+        <!-- Боковая панель (быстрые контакты) -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>📞 Быстрые контакты</h3>
+                <div class="quick-contacts">
+                    <div class="contact-card" style="margin-bottom: 15px;">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-info">
+                            <strong>Отдел продаж</strong>
+                            <span>+7 (495) 123-45-67</span>
+                            <span style="display: block; font-size: 0.9em; color: #666;">ежедневно 10:00-21:00</span>
+                        </div>
+                    </div>
+                    <div class="contact-card" style="margin-bottom: 15px;">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-info">
+                            <strong>Сервисный центр</strong>
+                            <span>+7 (495) 123-45-68</span>
+                            <span style="display: block; font-size: 0.9em; color: #666;">пн-пт 9:00-20:00</span>
+                        </div>
+                    </div>
+                    <div class="contact-card" style="margin-bottom: 15px;">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-info">
+                            <strong>Email</strong>
+                            <span>info@uytniydom.ru</span>
+                            <span>zakaz@uytniydom.ru (для заказов)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>🕒 Режим работы</h3>
+                <div class="work-hours">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                        <span>Пн-Пт:</span>
+                        <span><strong>10:00 - 21:00</strong></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                        <span>Суббота:</span>
+                        <span><strong>10:00 - 20:00</strong></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                        <span>Воскресенье:</span>
+                        <span><strong>11:00 - 19:00</strong></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Доставка:</span>
+                        <span><strong>круглосуточно</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>🚗 Как проехать</h3>
+                <ul class="sidebar-links">
+                    <li><strong>Метро:</strong> м. "Тульская", выход 4</li>
+                    <li><strong>Автобус:</strong> № 8, 12 до ост. "Улица Строителей"</li>
+                    <li><strong>Маршрутка:</strong> № 45к до ост. "Мебельный центр"</li>
+                    <li><strong>На машине:</strong> Бесплатная парковка на 50 мест</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📱 Мы в соцсетях</h3>
+                <div style="display: flex; gap: 15px; justify-content: center; font-size: 2em;">
+                    <a href="#" style="color: var(--primary-wood);"><i class="fab fa-vk"></i></a>
+                    <a href="#" style="color: var(--primary-wood);"><i class="fab fa-telegram"></i></a>
+                    <a href="#" style="color: var(--primary-wood);"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" style="color: var(--primary-wood);"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Основная content area -->
+        <main class="content-area">
+            <!-- Заголовок -->
+            <section class="page-header">
+                <h1>Контакты</h1>
+                <p class="page-subtitle">Всегда рады видеть вас в нашем шоуруме или ответить на вопросы онлайн</p>
+            </section>
+
+            <!-- Контактная информация (2 колонки) -->
+            <div class="contacts-grid">
+                <!-- Левая колонка - адрес и детали -->
+                <div class="contacts-info">
+                    <h2>Наш шоурум</h2>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">📍</div>
+                        <div class="contact-details">
+                            <h3>Адрес</h3>
+                            <p>Москва, ул. Строителей, д. 15<br>ТЦ "Мебельный рай", 3-й этаж, павильон 315</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">🚇</div>
+                        <div class="contact-details">
+                            <h3>Как добраться</h3>
+                            <p>От метро "Тульская" пешком 7 минут. Выход №4, прямо до ТЦ "Мебельный рай".</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-details">
+                            <h3>Телефоны</h3>
+                            <p><strong>Продажи:</strong> <a href="tel:+74951234567">+7 (495) 123-45-67</a></p>
+                            <p><strong>Сервис:</strong> <a href="tel:+74951234568">+7 (495) 123-45-68</a></p>
+                            <p><strong>Опт:</strong> <a href="tel:+74951234569">+7 (495) 123-45-69</a></p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-details">
+                            <h3>Email</h3>
+                            <p><a href="mailto:info@uytniydom.ru">info@uytniydom.ru</a> (общие вопросы)</p>
+                            <p><a href="mailto:zakaz@uytniydom.ru">zakaz@uytniydom.ru</a> (заказы)</p>
+                            <p><a href="mailto:support@uytniydom.ru">support@uytniydom.ru</a> (поддержка)</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">🕒</div>
+                        <div class="contact-details">
+                            <h3>Режим работы</h3>
+                            <p>Пн-Пт: 10:00 - 21:00</p>
+                            <p>Суббота: 10:00 - 20:00</p>
+                            <p>Воскресенье: 11:00 - 19:00</p>
+                            <p><em>Заказы через сайт принимаются круглосуточно</em></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Правая колонка - форма обратной связи -->
+                <div class="contacts-form">
+                    <h2>Напишите нам</h2>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Ваше имя <span class="required">*</span></label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Телефон</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+7 (999) 123-45-67">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Тема обращения</label>
+                            <select id="subject" name="subject">
+                                <option value="consult">Консультация по мебели</option>
+                                <option value="order">Вопрос по заказу</option>
+                                <option value="service">Сервисное обслуживание</option>
+                                <option value="cooperation">Сотрудничество</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Сообщение <span class="required">*</span></label>
+                            <textarea id="message" name="message" rows="5" required placeholder="Опишите ваш вопрос..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px;">
+                                <i class="fas fa-paper-plane"></i> Отправить сообщение
+                            </button>
+                        </div>
+                        
+                        <p style="font-size: 0.9em; color: #666; text-align: center;">
+                            Нажимая "Отправить", вы соглашаетесь с обработкой персональных данных
+                        </p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Карта -->
+            <section class="map-section" style="margin-top: 40px;">
+                <div class="map-container">
+                    <h2>Как нас найти</h2>
+                    <div class="map-wrapper">
+                        <!-- Яндекс Карта (можно заменить на свою) -->
+                        <script type="text/javascript" charset="utf-8" async src="https://api-maps.yandex.ru/services/constructor/1.0/js/?um=constructor%3A5efd0904a93149710842e2431dc7205b5a592d6a7e88ff85748f18e0c72f0973&amp;width=800&amp;height=400&amp;lang=ru_RU&amp;scroll=true"></script>
+                    </div>
+                    <p style="margin-top: 15px; text-align: center;">
+                        <i class="fas fa-map-pin" style="color: var(--danger-red);"></i> 
+                        Точка на карте: Москва, ул. Строителей, д. 15 (ТЦ "Мебельный рай")
+                    </p>
+                </div>
+            </section>
+
+            <!-- Реквизиты (не обязательно, но солидно) -->
+            <section class="card" style="margin-top: 30px;">
+                <h3 style="text-align: center;">Наши реквизиты</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                    <div>
+                        <strong>ИНН</strong><br>
+                        7712345678
+                    </div>
+                    <div>
+                        <strong>КПП</strong><br>
+                        771201001
+                    </div>
+                    <div>
+                        <strong>ОГРН</strong><br>
+                        1234567890123
+                    </div>
+                    <div>
+                        <strong>Расчетный счет</strong><br>
+                        40702810123450000123
+                    </div>
+                    <div>
+                        <strong>Банк</strong><br>
+                        Сбербанк, г. Москва
+                    </div>
+                    <div>
+                        <strong>БИК</strong><br>
+                        044525225
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="school-footer">
+        <div class="footer-container">
+            <div class="footer-info">
+                <p>&copy; 2025 Мебельный магазин "Уютный Дом". Все права защищены.</p>
+                <p>Телефон: +7 (495) 123-45-67 | Email: info@uytniydom.ru | Адрес: Москва, ул. Строителей, д. 15</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="/static/auth.js"></script>
+    <script>
+        // Обновляем счетчик корзины
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedCart = localStorage.getItem('furnitureCart');
+            if (savedCart) {
+                const cart = JSON.parse(savedCart);
+                document.getElementById('cartCount').textContent = cart.count || 0;
+            }
+        });
+
+        // Обработка формы обратной связи
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            // Здесь можно добавить реальную отправку на сервер
+            alert(`Спасибо, ${name}! Ваше сообщение отправлено. Мы ответим вам на ${email} в ближайшее время.`);
+            
+            // Очистка формы
+            this.reset();
+        });
+
+        // Простая маска для телефона (не обязательно, но удобно)
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,1})(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            e.target.value = '+7' + (x[2] ? ' (' + x[2] : '') + (x[3] ? ') ' + x[3] : '') + (x[4] ? '-' + x[4] : '') + (x[5] ? '-' + x[5] : '');
+        });
+    </script>
+</body>
+</html>

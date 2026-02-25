@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас - Мебельный магазин "Уютный Дом"</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="school-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="school-logo">
+                    <div class="logo-placeholder">🪑</div>
+                </div>
+                <div class="school-titles">
+                    <h1 class="school-name">Мебельный магазин "Уютный Дом"</h1>
+                    <p class="school-motto">Создаём уют в вашем доме с 2005 года</p>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <div class="login-form">
+                    <input type="text" placeholder="Логин" id="loginInput">
+                    <input type="password" placeholder="Пароль" id="passwordInput">
+                    <button onclick="handleLogin()">Войти</button>
+                    <a href="/register" style="margin-top: 8px; text-align: center; display: block; color: white; font-size: 12px; text-decoration: none;">
+                        Регистрация
+                    </a>
+                </div>
+                <div class="user-view" id="userView" style="display: none;">
+                    <span id="userGreeting"></span>
+                    <button onclick="handleLogout()">Выйти</button>
+                </div>
+                
+                <div class="cart-icon">
+                    <a href="cart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Корзина</span>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Главная</a>
+            <a href="products.html" class="nav-link">Каталог</a>
+            <a href="about.html" class="nav-link active">О нас</a>
+            <a href="contacts.html" class="nav-link">Контакты</a>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="main-container">
+        <!-- Боковая панель (цифры и факты) -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>📊 Мы в цифрах</h3>
+                <div class="stats-vertical">
+                    <div class="stat-item" style="text-align: left; padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <div class="stat-number" style="font-size: 1.8em; color: var(--primary-wood);">20+</div>
+                        <div class="stat-label">лет на рынке</div>
+                    </div>
+                    <div class="stat-item" style="text-align: left; padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <div class="stat-number" style="font-size: 1.8em; color: var(--primary-wood);">15 000+</div>
+                        <div class="stat-label">довольных клиентов</div>
+                    </div>
+                    <div class="stat-item" style="text-align: left; padding: 10px 0; border-bottom: 1px solid #eee;">
+                        <div class="stat-number" style="font-size: 1.8em; color: var(--primary-wood);">500+</div>
+                        <div class="stat-label">моделей мебели</div>
+                    </div>
+                    <div class="stat-item" style="text-align: left; padding: 10px 0;">
+                        <div class="stat-number" style="font-size: 1.8em; color: var(--primary-wood);">5 лет</div>
+                        <div class="stat-label">гарантии на всю мебель</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>🏆 Наши награды</h3>
+                <ul class="sidebar-links">
+                    <li>⭐ "Лучший мебельный магазин 2023"</li>
+                    <li>⭐ "Знак качества" от портала Mos.ru</li>
+                    <li>⭐ Диплом "Экологичная мебель"</li>
+                    <li>⭐ Победитель конкурса "Уютный дом 2024"</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📞 Свяжитесь с нами</h3>
+                <div class="quick-contacts">
+                    <div class="contact-card" style="margin-bottom: 10px;">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-info">
+                            <strong>Отдел продаж</strong>
+                            <span>+7 (495) 123-45-67</span>
+                        </div>
+                    </div>
+                    <div class="contact-card" style="margin-bottom: 10px;">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-info">
+                            <strong>Email</strong>
+                            <span>info@uytniydom.ru</span>
+                        </div>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon">📍</div>
+                        <div class="contact-info">
+                            <strong>Шоурум</strong>
+                            <span>Москва, ул. Строителей, д. 15</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Основная content area -->
+        <main class="content-area">
+            <!-- Заголовок -->
+            <section class="page-header">
+                <h1>О компании "Уютный Дом"</h1>
+                <p class="page-subtitle">Мы создаём мебель, которая делает ваш дом по-настоящему тёплым и уютным</p>
+            </section>
+
+            <!-- История компании -->
+            <section class="about-section">
+                <h2>Наша история</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <p>Всё началось в 2005 году, когда два друга — Александр и Дмитрий — решили создать мебель, которая будет радовать людей каждый день. С маленькой мастерской и тремя станками они начинали свой путь.</p>
+                        <p>Сегодня "Уютный Дом" — это современное производство полного цикла площадью 5000 м², собственная дизайн-студия и шоурум в центре Москвы. Мы производим более 500 моделей мебели из натурального дерева, ЛДСП и качественных материалов.</p>
+                        <p>Но главное осталось неизменным — мы по-прежнему вкладываем душу в каждый предмет мебели, чтобы он приносил радость и уют в ваш дом.</p>
+                    </div>
+                    <div class="about-image">
+                        <span style="font-size: 4em;">🏭</span>
+                        <p style="margin-top: 20px;">Наше производство в 2005 и сейчас</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Наши преимущества -->
+            <section class="about-section">
+                <h2>Почему выбирают нас</h2>
+                <div class="benefits-grid">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🌳</div>
+                        <h3>Экологичность</h3>
+                        <p>Используем только безопасные материалы с сертификатами</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔨</div>
+                        <h3>Собственное производство</h3>
+                        <p>Контролируем качество на всех этапах</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🚚</div>
+                        <h3>Быстрая доставка</h3>
+                        <p>Доставим по Москве за 1-2 дня</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🛠️</div>
+                        <h3>Профессиональная сборка</h3>
+                        <p>Соберут мастера с 10-летним опытом</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">💰</div>
+                        <h3>Цены от производителя</h3>
+                        <p>Без наценок посредников</p>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔄</div>
+                        <h3>Возврат без проблем</h3>
+                        <p>30 дней на возврат или обмен</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Наша команда -->
+            <section class="about-section">
+                <h2>Команда "Уютный Дом"</h2>
+                <p style="text-align: center; margin-bottom: 30px;">Над созданием вашего уюта работают профессионалы своего дела</p>
+                
+                <div class="team-grid">
+                    <div class="team-member">
+                        <div class="member-photo"><img src="https://travelask.ru/system/images/files/001/291/232/wysiwyg_jpg/%D0%B2%D0%B0%D0%B9%D0%BE.jpg?1553169087" alt="Александр Волков" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>
+                        <h3>Александр Волков</h3>
+                        <p class="member-position">Основатель и генеральный директор</p>
+                        <p>20 лет в мебельном бизнесе. Лично контролирует качество каждой модели.</p>
+                    </div>
+
+                    <div class="team-member">
+                        <div class="member-photo"><img src="https://icdn.lenta.ru/images/2020/12/29/11/20201229112825851/square_1280_5c04cfca76d125fefd26607b97335e60.jpg" alt="Александр Волков" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>
+                        <h3>Дмитрий Соколов</h3>
+                        <p class="member-position">Главный дизайнер</p>
+                        <p>Создаёт эргономичную и красивую мебель уже 15 лет. Автор 300+ моделей.</p>
+                    </div>
+
+                    <div class="team-member">
+                        <div class="member-photo"><img src="https://travelask.ru/system/images/files/001/291/224/wysiwyg_jpg/%D1%84%D0%BE%D0%BA%D1%81.jpg?1553168899" alt="Александр Волков" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>
+                        <h3>Елена Морозова</h3>
+                        <p class="member-position">Руководитель отдела продаж</p>
+                        <p>Поможет подобрать идеальную мебель под ваш бюджет и интерьер.</p>
+                    </div>
+
+                    <div class="team-member">
+                        <div class="member-photo"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEMjzR_VHsgR-6EU84kgsp8PomhSA2QYlLrw&s" alt="Александр Волков" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>
+                        <h3>Иван Петров</h3>
+                        <p class="member-position">Главный технолог</p>
+                        <p>Отвечает за качество материалов и долговечность мебели.</p>
+                    </div>
+
+                    <div class="team-member">
+                        <div class="member-photo"><img src="https://travelask.ru/system/images/files/001/291/226/wysiwyg_jpg/%D1%80%D0%BE%D0%B1%D0%B1%D0%B8.jpg?1553168937" alt="Александр Волков" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>
+                        <h3>Мария Иванова</h3>
+                        <p class="member-position">Дизайнер интерьеров</p>
+                        <p>Бесплатно консультирует клиентов по расстановке мебели.</p>
+                    </div>
+
+                    <div class="team-member">
+                        <div class="member-photo"><img src="https://masterpiecer-images.s3.yandex.net/7c24eaab615311eea1697a2f0d1382ba:upscaled" alt="Александр Волков" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;"></div>
+                        <h3>Сергей Кузнецов</h3>
+                        <p class="member-position">Руководитель службы сборки</p>
+                        <p>Его команда собирает мебель быстро и аккуратно уже 12 лет.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Отзывы -->
+            <section class="about-section">
+                <h2>Что говорят наши клиенты</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="background: var(--gray-light); padding: 20px; border-radius: var(--radius-md); border-left: 4px solid var(--primary-wood);">
+                        <p style="font-style: italic;">"Заказывали спальню в новую квартиру. Очень довольны качеством и сервисом. Собрали быстро, всё аккуратно. Обязательно вернёмся за диваном!"</p>
+                        <p style="margin-top: 10px; font-weight: bold;">— Анна и Дмитрий, Москва</p>
+                    </div>
+                    <div style="background: var(--gray-light); padding: 20px; border-radius: var(--radius-md); border-left: 4px solid var(--primary-wood);">
+                        <p style="font-style: italic;">"Покупали кухонный гарнитур. Очень понравилось, что дизайнер помогла с планировкой. Мебель отличная, уже год пользуемся — полёт нормальный!"</p>
+                        <p style="margin-top: 10px; font-weight: bold;">— Елена, Химки</p>
+                    </div>
+                    <div style="background: var(--gray-light); padding: 20px; border-radius: var(--radius-md); border-left: 4px solid var(--primary-wood);">
+                        <p style="font-style: italic;">"Диван "Комфорт" — наша любовь. Очень удобный, качество отличное, цена адекватная. Всё на высшем уровне. Спасибо!"</p>
+                        <p style="margin-top: 10px; font-weight: bold;">— Михаил, Зеленоград</p>
+                    </div>
+                    <div style="background: var(--gray-light); padding: 20px; border-radius: var(--radius-md); border-left: 4px solid var(--primary-wood);">
+                        <p style="font-style: italic;">"Покупали шкаф в прихожую. Всё подошло идеально, сборка быстрая. Очень вежливые менеджеры. Рекомендую!"</p>
+                        <p style="margin-top: 10px; font-weight: bold;">— Ольга, Мытищи</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="school-footer">
+        <div class="footer-container">
+            <div class="footer-info">
+                <p>&copy; 2025 Мебельный магазин "Уютный Дом". Все права защищены.</p>
+                <p>Телефон: +7 (495) 123-45-67 | Email: info@uytniydom.ru | Адрес: Москва, ул. Строителей, д. 15</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="/static/auth.js"></script>
+    <script>
+        // Обновляем счетчик корзины
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedCart = localStorage.getItem('furnitureCart');
+            if (savedCart) {
+                const cart = JSON.parse(savedCart);
+                document.getElementById('cartCount').textContent = cart.count || 0;
+            }
+        });
+    </script>
+</body>
+</html>

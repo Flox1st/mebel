@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мебельный магазин "Уютный Дом"</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="school-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="school-logo">
+                    <div class="logo-placeholder">🪑</div>
+                </div>
+                <div class="school-titles">
+                    <h1 class="school-name">Мебельный магазин "Уютный Дом"</h1>
+                    <p class="school-motto">Создаём уют в вашем доме с 2005 года</p>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <div class="login-form">
+                    <input type="text" placeholder="Логин" id="loginInput">
+                    <input type="password" placeholder="Пароль" id="passwordInput">
+                    <button onclick="handleLogin()">Войти</button>
+                    <a href="/register" style="margin-top: 8px; text-align: center; display: block; color: white; font-size: 12px; text-decoration: none;">
+                        Регистрация
+                    </a>
+                </div>
+                <div class="user-view" id="userView" style="display: none;">
+                    <span id="userGreeting"></span>
+                    <button onclick="handleLogout()">Выйти</button>
+                </div>
+                
+                <!-- Иконка корзины -->
+                <div class="cart-icon">
+                    <a href="cart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Корзина</span>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основная навигация -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link active">Главная</a>
+            <a href="products.html" class="nav-link">Каталог</a>
+            <a href="about.html" class="nav-link">О нас</a>
+            <a href="contacts.html" class="nav-link">Контакты</a>
+        </div>
+    </nav>
+
+    <!-- Карусель -->
+    <section class="carousel-section">
+        <div class="carousel-container">
+            <div class="carousel-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">4</span>
+            </div>
+            
+            <div class="carousel-slides" id="carouselSlides">
+                 <!-- Слайд 1 -->
+                <div class="carousel-slide active">
+                    <img src="https://sola-m.ru/wp-content/uploads/2023/02/divan-krovat-soft-v-interere-1.jpg" alt="Мягкая мебель" class="carousel-image">
+                    <div class="carousel-caption">
+                        <h3>Мягкая мебель</h3>
+                        <p>Диваны и кресла для уютного отдыха</p>
+                    </div>
+                </div>
+
+                <!-- Слайд 2 -->
+                <div class="carousel-slide">
+                    <img src="https://son.ru/uploads/publication/F6rNRZ9NO92sigOGmfozb81XbEp-EB0L.jpg" alt="Спальни" class="carousel-image">
+                    <div class="carousel-caption">
+                        <h3>Спальни</h3>
+                        <p>Кровати, шкафы и комоды для вашей спальни</p>
+                    </div>
+                </div>
+
+                <!-- Слайд 3 -->
+                <div class="carousel-slide">
+                    <img src="https://img.spim.ru/i/tile/h_mid4x/img.mebhome.ru/stolline/stolline_626193.jpg" alt="Кухонная мебель" class="carousel-image">
+                    <div class="carousel-caption">
+                        <h3>Кухонная мебель</h3>
+                        <p>Столы, стулья и кухонные гарнитуры</p>
+                    </div>
+                </div>
+
+                <!-- Слайд 4 -->
+                <div class="carousel-slide">
+                    <img src="https://studio-mint.ru/sites/default/files/sites/default/files/imce/foto2.jpg" alt="Прихожие" class="carousel-image">
+                    <div class="carousel-caption">
+                        <h3>Прихожие</h3>
+                        <p>Шкафы, вешалки и тумбы для прихожей</p>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="carousel-btn prev" onclick="prevSlide()">‹</button>
+            <button class="carousel-btn next" onclick="nextSlide()">›</button>
+            
+            <div class="carousel-indicators" id="carouselIndicators"></div>
+        </div>
+    </section>
+
+    <!-- Основной контент -->
+    <div class="main-container">
+        <!-- Боковая панель (скидки и акции) -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3>🔥 Горячие скидки</h3>
+                <div class="announcements">
+                    <div class="announcement-item">
+                        <span class="announcement-date">-30%</span>
+                        <p>Диван "Комфорт" всего 32 990 ₽</p>
+                    </div>
+                    <div class="announcement-item">
+                        <span class="announcement-date">-20%</span>
+                        <p>Кровать "Спокойствие" 25 990 ₽</p>
+                    </div>
+                    <div class="announcement-item">
+                        <span class="announcement-date">Подарок</span>
+                        <p>При покупке спальни - подушки в подарок</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📞 Быстрая связь</h3>
+                <div class="quick-contacts">
+                    <div class="contact-card">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-info">
+                            <strong>Отдел продаж</strong>
+                            <span>+7 (495) 123-45-67</span>
+                        </div>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon">📧</div>
+                        <div class="contact-info">
+                            <strong>Email</strong>
+                            <span>info@uytniydom.ru</span>
+                        </div>
+                    </div>
+                    <div class="contact-card">
+                        <div class="contact-icon">🕒</div>
+                        <div class="contact-info">
+                            <strong>Часы работы</strong>
+                            <span>Ежедневно 10:00-21:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📋 Почему мы?</h3>
+                <ul class="sidebar-links">
+                    <li>✅ Собственное производство</li>
+                    <li>✅ Доставка по всей России</li>
+                    <li>✅ Сборка и установка</li>
+                    <li>✅ Гарантия 5 лет</li>
+                    <li>✅ Возврат без проблем</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Основная content area -->
+        <main class="content-area">
+            <!-- Приветственная секция -->
+            <section class="welcome-section">
+                <h2>Добро пожаловать в "Уютный Дом"!</h2>
+                <p>Мы создаём мебель, которая делает ваш дом по-настоящему уютным. Более 15 лет мы радуем наших покупателей качественной мебелью из натуральных материалов по доступным ценам.</p>
+            </section>
+
+            <!-- Популярные товары -->
+            <section class="popular-products">
+                <div class="section-header">
+                    <h2>Популярные товары</h2>
+                    <a href="products.html" class="section-link">Смотреть все →</a>
+                </div>
+                
+                <div class="products-grid-home">
+                    <!-- Товар 1 -->
+                    <div class="product-card" data-id="1">
+                        <div class="product-image">
+                            <img src="/static/images/products/divan1.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Диван "Комфорт"</h3>
+                            <div class="product-price">45 990 ₽</div>
+                            <button class="add-to-cart-btn" onclick="addToCart(1)">В корзину</button>
+                        </div>
+                    </div>
+
+                    <!-- Товар 2 -->
+                    <div class="product-card" data-id="2">
+                        <div class="product-image">
+                            <img src="/static/images/products/krovat2.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Кровать "Спокойствие"</h3>
+                            <div class="product-price">32 990 ₽</div>
+                            <button class="add-to-cart-btn" onclick="addToCart(2)">В корзину</button>
+                        </div>
+                    </div>
+
+                    <!-- Товар 3 -->
+                    <div class="product-card" data-id="4">
+                        <div class="product-image">
+                            <img src="/static/images/products/stol3.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Шкаф "Гармония"</h3>
+                            <div class="product-price">27 990 ₽</div>
+                            <button class="add-to-cart-btn" onclick="addToCart(4)">В корзину</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Наши преимущества -->
+            <section class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-truck" style="font-size: 2em; color: var(--primary-wood); margin-bottom: 15px;"></i>
+                    <h3>Бесплатная доставка</h3>
+                    <p>При заказе от 50 000 ₽ доставим бесплатно</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-wrench" style="font-size: 2em; color: var(--primary-wood); margin-bottom: 15px;"></i>
+                    <h3>Профессиональная сборка</h3>
+                    <p>Опытные мастера соберут мебель за 1 день</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt" style="font-size: 2em; color: var(--primary-wood); margin-bottom: 15px;"></i>
+                    <h3>Гарантия 5 лет</h3>
+                    <p>На всю мебель официальная гарантия</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-undo-alt" style="font-size: 2em; color: var(--primary-wood); margin-bottom: 15px;"></i>
+                    <h3>Легкий возврат</h3>
+                    <p>30 дней на возврат без лишних вопросов</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="school-footer">
+        <div class="footer-container">
+            <div class="footer-info">
+                <p>&copy; 2025 Мебельный магазин "Уютный Дом". Все права защищены.</p>
+                <p>Телефон: +7 (495) 123-45-67 | Email: info@uytniydom.ru | Адрес: Москва, ул. Строителей, д. 15</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="/static/auth.js"></script>
+    <script>
+        // Карусель
+        class Carousel {
+            constructor() {
+                this.slides = document.querySelectorAll('.carousel-slide');
+                this.indicatorsContainer = document.getElementById('carouselIndicators');
+                this.currentSlide = 0;
+                this.totalSlides = this.slides.length;
+                
+                this.init();
+            }
+            
+            init() {
+                if (this.totalSlides === 0) return;
+                
+                // Создаем индикаторы
+                for (let i = 0; i < this.totalSlides; i++) {
+                    const indicator = document.createElement('div');
+                    indicator.className = `carousel-indicator ${i === 0 ? 'active' : ''}`;
+                    indicator.dataset.index = i;
+                    indicator.onclick = () => this.goToSlide(i);
+                    this.indicatorsContainer.appendChild(indicator);
+                }
+                
+                this.updateCounter();
+            }
+            
+            goToSlide(index) {
+                this.slides.forEach(slide => slide.classList.remove('active'));
+                this.slides[index].classList.add('active');
+                
+                const indicators = document.querySelectorAll('.carousel-indicator');
+                indicators.forEach((ind, i) => {
+                    ind.classList.toggle('active', i === index);
+                });
+                
+                this.currentSlide = index;
+                this.updateCounter();
+            }
+            
+            nextSlide() {
+                let next = this.currentSlide + 1;
+                if (next >= this.totalSlides) next = 0;
+                this.goToSlide(next);
+            }
+            
+            prevSlide() {
+                let prev = this.currentSlide - 1;
+                if (prev < 0) prev = this.totalSlides - 1;
+                this.goToSlide(prev);
+            }
+            
+            updateCounter() {
+                document.getElementById('currentSlide').textContent = this.currentSlide + 1;
+                document.getElementById('totalSlides').textContent = this.totalSlides;
+            }
+        }
+
+        // Корзина (базовая)
+        let cart = JSON.parse(localStorage.getItem('furnitureCart')) || { items: [], count: 0, total: 0 };
+
+        function addToCart(productId) {
+            const productCards = {
+                1: { id: 1, name: 'Диван "Комфорт"', price: 45990, image: '🛋️' },
+                2: { id: 2, name: 'Кровать "Спокойствие"', price: 32990, image: '🛏️' },
+                3: { id: 3, name: 'Стол обеденный', price: 18990, image: '🪑' },
+                4: { id: 4, name: 'Шкаф "Гармония"', price: 27990, image: '🗄️' }
+            };
+
+            const product = productCards[productId];
+            if (!product) return;
+
+            const existing = cart.items.find(item => item.id === productId);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.items.push({ ...product, quantity: 1 });
+            }
+
+            cart.count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+            cart.total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            localStorage.setItem('furnitureCart', JSON.stringify(cart));
+            document.getElementById('cartCount').textContent = cart.count;
+
+            alert(`✅ "${product.name}" добавлен в корзину!`);
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            window.carousel = new Carousel();
+            window.prevSlide = () => carousel.prevSlide();
+            window.nextSlide = () => carousel.nextSlide();
+
+            // Обновляем счетчик корзины
+            const savedCart = localStorage.getItem('furnitureCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                document.getElementById('cartCount').textContent = cart.count || 0;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ховринская Гимназия "Лампада" - Корзина</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Шапка сайта -->
+    <header class="school-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="school-logo">
+                    <div class="logo-placeholder">Л</div>
+                </div>
+                <div class="school-titles">
+                    <h1 class="school-name">Ховринская Гимназия "Лампада"</h1>
+                    <p class="school-motto">Знание - свет, а незнание - тьма</p>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <div class="login-form">
+                    <input type="text" placeholder="Логин" id="loginInput">
+                    <input type="password" placeholder="Пароль" id="passwordInput">
+                    <button onclick="handleLogin()">Войти</button>
+                </div>
+                <!-- Иконка корзины -->
+                <div class="cart-icon">
+                    <a href="cart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Корзина</span>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основная навигация -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Главная</a>
+            <a href="products.html" class="nav-link">Школьный магазин</a>
+            <a href="about.html" class="nav-link">О гимназии</a>
+            <a href="teachers.html" class="nav-link">Преподаватели</a>
+            <a href="news.html" class="nav-link">Новости</a>
+            <a href="students.html" class="nav-link">Ученикам</a>
+            <a href="parents.html" class="nav-link">Родителям</a>
+            <a href="contacts.html" class="nav-link">Контакты</a>
+        </div>
+    </nav>
+
+    <!-- Страница корзины -->
+    <div class="cart-page">
+        <div class="cart-container">
+            <!-- Заголовок -->
+            <div class="cart-header">
+                <h1>Ваша корзина</h1>
+                <p>Проверьте товары перед оформлением заказа</p>
+            </div>
+
+            <!-- Основной контент -->
+            <div id="cartContent">
+                <!-- Корзина загружается через JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="school-footer">
+        <div class="footer-container">
+            <div class="footer-info">
+                <p>&copy; 2025 Ховринская Гимназия "Лампада". Все права защищены.</p>
+                <p>Телефон: +7 (495) 123-45-67 | Email: info@lampada-gymnasium.ru</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Модальное окно оформления заказа -->
+    <div id="checkoutModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Оформление заказа</h2>
+                <button class="close-modal" onclick="closeCheckoutModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="checkoutForm">
+                    <div class="form-group">
+                        <label for="fullName">ФИО *</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Телефон *</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="deliveryMethod">Способ получения</label>
+                        <select id="deliveryMethod" required>
+                            <option value="">Выберите способ</option>
+                            <option value="school">Самовывоз из гимназии</option>
+                            <option value="delivery">Доставка по адресу</option>
+                        </select>
+                    </div>
+                    
+                    <div id="addressField" style="display: none;">
+                        <div class="form-group">
+                            <label for="address">Адрес доставки</label>
+                            <input type="text" id="address">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comment">Комментарий к заказу</label>
+                        <textarea id="comment" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <h3>Итого к оплате: <span id="modalTotal">0</span> ₽</h3>
+                    </div>
+                    
+                    <button type="submit" class="submit-order-btn">Подтвердить заказ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Управление корзиной
+        const CartManager = {
+            // Загрузить корзину
+            loadCart() {
+                const savedCart = localStorage.getItem('schoolCart');
+                return savedCart ? JSON.parse(savedCart) : {
+                    items: [],
+                    total: 0,
+                    count: 0
+                };
+            },
+            
+            // Сохранить корзину
+            saveCart(cart) {
+                localStorage.setItem('schoolCart', JSON.stringify(cart));
+                this.updateCartCount(cart);
+            },
+            
+            // Обновить счетчик в шапке
+            updateCartCount(cart) {
+                const cartCountElement = document.getElementById('cartCount');
+                if (cartCountElement) {
+                    cartCountElement.textContent = cart.count;
+                }
+            },
+            
+            // Пересчитать корзину
+            recalculate(cart) {
+                cart.count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+                cart.total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                return cart;
+            },
+            
+            // Удалить товар
+            removeItem(productId) {
+                let cart = this.loadCart();
+                cart.items = cart.items.filter(item => item.id !== productId);
+                cart = this.recalculate(cart);
+                this.saveCart(cart);
+                return cart;
+            },
+            
+            // Изменить количество
+            updateQuantity(productId, newQuantity) {
+                if (newQuantity < 1) return this.removeItem(productId);
+                
+                let cart = this.loadCart();
+                const item = cart.items.find(item => item.id === productId);
+                if (item) {
+                    item.quantity = newQuantity;
+                    cart = this.recalculate(cart);
+                    this.saveCart(cart);
+                }
+                return cart;
+            },
+            
+            // Очистить корзину
+            clearCart() {
+                const emptyCart = {
+                    items: [],
+                    total: 0,
+                    count: 0
+                };
+                this.saveCart(emptyCart);
+                return emptyCart;
+            }
+        };
+
+        // Рендеринг корзины
+        function renderCart() {
+            const cart = CartManager.loadCart();
+            const container = document.getElementById('cartContent');
+            
+            if (cart.items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h2>Ваша корзина пуста</h2>
+                        <p>Добавьте товары из школьного магазина</p>
+                        <a href="products.html" class="continue-shopping-btn">
+                            <i class="fas fa-shopping-bag"></i> Перейти к покупкам
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div class="cart-content">
+                    <!-- Список товаров -->
+                    <div class="cart-items">
+                        ${cart.items.map(item => `
+                            <div class="cart-item" data-id="${item.id}">
+                                <div class="cart-item-image">
+                                    <img src="${item.image}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/100/1e3c72/ffffff?text=Товар'">
+                                </div>
+                                <div class="cart-item-details">
+                                    <h3 class="cart-item-title">${item.title}</h3>
+                                    <div class="cart-item-price">${item.price.toLocaleString()} ₽</div>
+                                </div>
+                                <div class="cart-item-controls">
+                                    <div class="quantity-controls">
+                                        <button class="quantity-btn" onclick="changeQuantity(${item.id}, ${item.quantity - 1})">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" 
+                                               class="quantity-input" 
+                                               value="${item.quantity}" 
+                                               min="1" 
+                                               max="99"
+                                               onchange="updateQuantity(${item.id}, this.value)">
+                                        <button class="quantity-btn" onclick="changeQuantity(${item.id}, ${item.quantity + 1})">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="item-total">
+                                        <strong>${(item.price * item.quantity).toLocaleString()} ₽</strong>
+                                    </div>
+                                    <button class="remove-item-btn" onclick="removeFromCart(${item.id})">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <!-- Итоги и оформление -->
+                    <div class="cart-sidebar">
+                        <div class="cart-total-section">
+                            <h2>Итоги заказа</h2>
+                            
+                            <div class="summary-item">
+                                <span>Товары (${cart.count} шт.)</span>
+                                <span>${cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toLocaleString()} ₽</span>
+                            </div>
+                            
+                            <div class="summary-item">
+                                <span>Доставка</span>
+                                <span id="deliveryCost">0 ₽</span>
+                            </div>
+                            
+                            <div class="summary-item total">
+                                <span>Итого к оплате:</span>
+                                <span id="cartTotal">${cart.total.toLocaleString()} ₽</span>
+                            </div>
+                            
+                            <button class="checkout-btn" onclick="openCheckoutModal()">
+                                <i class="fas fa-credit-card"></i> Оформить заказ
+                            </button>
+                            
+                            <a href="products.html" class="continue-shopping-btn" style="display: block; text-align: center; margin-top: 15px;">
+                                <i class="fas fa-arrow-left"></i> Продолжить покупки
+                            </a>
+                        </div>
+                        
+                        <div class="cart-options">
+                            <h3>Есть промокод?</h3>
+                            <div class="promo-code">
+                                <input type="text" placeholder="Введите промокод" id="promoCode">
+                                <button onclick="applyPromoCode()">Применить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Обновляем общую сумму
+            updateTotal();
+        }
+
+        // Функции управления корзиной
+        function changeQuantity(productId, newQuantity) {
+            if (newQuantity < 1) {
+                removeFromCart(productId);
+                return;
+            }
+            
+            const cart = CartManager.updateQuantity(productId, newQuantity);
+            renderCart();
+            
+            // Анимация обновления
+            const itemElement = document.querySelector(`.cart-item[data-id="${productId}"]`);
+            if (itemElement) {
+                itemElement.style.animation = 'none';
+                setTimeout(() => {
+                    itemElement.style.animation = 'fadeIn 0.3s ease';
+                }, 10);
+            }
+        }
+
+        function updateQuantity(productId, value) {
+            const quantity = parseInt(value);
+            if (isNaN(quantity) || quantity < 1) return;
+            
+            changeQuantity(productId, quantity);
+        }
+
+        function removeFromCart(productId) {
+            if (confirm('Удалить товар из корзины?')) {
+                const cart = CartManager.removeItem(productId);
+                renderCart();
+                showNotification('Товар удален из корзины');
+            }
+        }
+
+        function updateTotal() {
+            const cart = CartManager.loadCart();
+            document.getElementById('cartTotal').textContent = cart.total.toLocaleString() + ' ₽';
+        }
+
+        // Оформление заказа
+        function openCheckoutModal() {
+            const cart = CartManager.loadCart();
+            if (cart.items.length === 0) {
+                alert('Корзина пуста!');
+                return;
+            }
+            
+            document.getElementById('modalTotal').textContent = cart.total.toLocaleString();
+            document.getElementById('checkoutModal').style.display = 'block';
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').style.display = 'none';
+            document.getElementById('checkoutForm').reset();
+        }
+
+        function applyPromoCode() {
+            const promoCode = document.getElementById('promoCode').value;
+            // Здесь можно добавить логику проверки промокодов
+            showNotification('Промокод применен!');
+        }
+
+        // Обработчик выбора способа доставки
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация
+            CartManager.updateCartCount(CartManager.loadCart());
+            renderCart();
+            
+            // Обработка формы заказа
+            document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const cart = CartManager.loadCart();
+                const orderData = {
+                    items: cart.items,
+                    total: cart.total,
+                    customer: {
+                        name: document.getElementById('fullName').value,
+                        phone: document.getElementById('phone').value,
+                        email: document.getElementById('email').value,
+                        delivery: document.getElementById('deliveryMethod').value,
+                        address: document.getElementById('address').value || '',
+                        comment: document.getElementById('comment').value
+                    },
+                    date: new Date().toLocaleString()
+                };
+                
+                // В реальном проекте здесь был бы AJAX-запрос на сервер
+                console.log('Заказ оформлен:', orderData);
+                
+                // Показываем уведомление
+                showNotification('Заказ успешно оформлен! С вами свяжутся для подтверждения.');
+                
+                // Очищаем корзину
+                CartManager.clearCart();
+                renderCart();
+                closeCheckoutModal();
+                
+                // Перенаправляем на страницу благодарности
+                setTimeout(() => {
+                    window.location.href = 'order-success.html';
+                }, 2000);
+            });
+            
+            // Показываем/скрываем поле адреса
+            document.getElementById('deliveryMethod')?.addEventListener('change', function() {
+                const addressField = document.getElementById('addressField');
+                addressField.style.display = this.value === 'delivery' ? 'block' : 'none';
+            });
+            
+            // Закрытие модального окна при клике вне его
+            window.addEventListener('click', function(e) {
+                const modal = document.getElementById('checkoutModal');
+                if (e.target === modal) {
+                    closeCheckoutModal();
+                }
+            });
+        });
+
+        // Вспомогательные функции
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--success-green);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: var(--radius-md);
+                    box-shadow: var(--shadow-lg);
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                ">
+                    <i class="fas fa-check-circle"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Стили для модального окна
+        const modalStyles = `
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            .modal-content {
+                background: white;
+                margin: 5% auto;
+                width: 90%;
+                max-width: 500px;
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-lg);
+                animation: slideUp 0.3s ease;
+            }
+            
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: var(--space-lg);
+                border-bottom: 1px solid #eee;
+            }
+            
+            .modal-header h2 {
+                color: var(--primary-blue);
+                margin: 0;
+            }
+            
+            .close-modal {
+                background: none;
+                border: none;
+                font-size: 2em;
+                cursor: pointer;
+                color: var(--gray-dark);
+                transition: color 0.3s;
+            }
+            
+            .close-modal:hover {
+                color: var(--danger-red);
+            }
+            
+            .modal-body {
+                padding: var(--space-lg);
+            }
+            
+            .submit-order-btn {
+                width: 100%;
+                padding: 15px;
+                background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+                color: white;
+                border: none;
+                border-radius: var(--radius-sm);
+                font-size: 1.1em;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s;
+                margin-top: var(--space-md);
+            }
+            
+            .submit-order-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
+            }
+            
+            .order-summary {
+                background: var(--gray-light);
+                padding: var(--space-md);
+                border-radius: var(--radius-sm);
+                margin: var(--space-md) 0;
+                text-align: center;
+            }
+            
+            @keyframes slideUp {
+                from {
+                    transform: translateY(50px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = modalStyles;
+        document.head.appendChild(styleSheet);
+    </script>
+<script src="/static/auth.js"></script> 
+</body>
+</html>
