@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Диван "Комфорт" - Мебельный магазин "Уютный Дом"</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .product-page {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .product-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .product-gallery {
+            background: var(--light-beige);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+        
+        .product-gallery img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+        
+        .product-info {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .product-info h1 {
+            color: var(--primary-wood);
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+        
+        .product-price-large {
+            font-size: 2.5em;
+            color: var(--danger-red);
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .product-specs {
+            background: var(--gray-light);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+        }
+        
+        .product-specs h3 {
+            color: var(--primary-wood);
+            margin-bottom: 15px;
+        }
+        
+        .product-specs ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .product-specs li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .product-specs li:last-child {
+            border-bottom: none;
+        }
+        
+        .product-actions {
+            margin-top: 30px;
+        }
+        
+        .add-to-cart-large {
+            background: linear-gradient(135deg, var(--primary-wood), var(--secondary-wood));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--radius-md);
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        
+        .add-to-cart-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(93, 58, 26, 0.3);
+        }
+        
+        .reviews-section {
+            background: white;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-top: 40px;
+        }
+        
+        .reviews-section h2 {
+            color: var(--primary-wood);
+            margin-bottom: 30px;
+        }
+        
+        .review-card {
+            background: var(--gray-light);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-beige);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .review-author {
+            font-weight: bold;
+            color: var(--primary-wood);
+        }
+        
+        .review-date {
+            color: var(--gray-dark);
+            font-size: 0.9em;
+        }
+        
+        .review-rating {
+            color: gold;
+            margin-bottom: 10px;
+        }
+        
+        .review-text {
+            line-height: 1.5;
+            color: #333;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--primary-wood);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .breadcrumbs {
+            margin-bottom: 20px;
+            color: var(--gray-dark);
+        }
+        
+        .breadcrumbs a {
+            color: var(--primary-wood);
+            text-decoration: none;
+        }
+        
+        .breadcrumbs a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка сайта (такая же как везде) -->
+    <header class="school-header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="school-logo">
+                    <div class="logo-placeholder">🪑</div>
+                </div>
+                <div class="school-titles">
+                    <h1 class="school-name">Мебельный магазин "Уютный Дом"</h1>
+                    <p class="school-motto">Создаём уют в вашем доме с 2005 года</p>
+                </div>
+            </div>
+
+            <div class="auth-section">
+                <div class="login-form">
+                    <input type="text" placeholder="Логин" id="loginInput">
+                    <input type="password" placeholder="Пароль" id="passwordInput">
+                    <button onclick="handleLogin()">Войти</button>
+                    <a href="/register" style="margin-top: 8px; text-align: center; display: block; color: white; font-size: 12px; text-decoration: none;">
+                        Регистрация
+                    </a>
+                </div>
+                <div class="user-view" id="userView" style="display: none;">
+                    <span id="userGreeting"></span>
+                    <button onclick="handleLogout()">Выйти</button>
+                </div>
+                
+                <div class="cart-icon">
+                    <a href="/cart.html" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Корзина</span>
+                        <span class="cart-count" id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Навигация -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/index.html" class="nav-link">Главная</a>
+            <a href="/products.html" class="nav-link">Каталог</a>
+            <a href="/about.html" class="nav-link">О нас</a>
+            <a href="/contacts.html" class="nav-link">Контакты</a>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="product-page">
+        <!-- Хлебные крошки -->
+        <div class="breadcrumbs">
+            <a href="/index.html">Главная</a> > 
+            <a href="/products.html">Каталог</a> > 
+            <a href="/products.html?category=sofas">Диваны</a> > 
+            <span>Диван "Комфорт"</span>
+        </div>
+
+        <a href="/products.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Вернуться в каталог
+        </a>
+
+        <!-- Карточка товара -->
+        <div class="product-layout">
+            <div class="product-gallery">
+                <img src="/static/images/products/divan1.jpg" alt="Диван Комфорт"> 
+            </div>
+
+            <div class="product-info">
+                <h1>Диван "Комфорт"</h1>
+                <div class="product-price-large">45 990 ₽</div>
+                
+                <p style="margin-bottom: 20px;">
+                    Угловой диван с механизмом трансформации. Идеально подходит для просторных гостиных. 
+                    Обивка - велюр, наполнитель - пенополиуретан высокой плотности.
+                </p>
+
+                <div class="product-specs">
+                    <h3>Характеристики</h3>
+                    <ul>
+                        <li><strong>Материал:</strong> велюр (100% полиэстер)</li>
+                        <li><strong>Каркас:</strong> массив сосны + фанера</li>
+                        <li><strong>Наполнитель:</strong> пенополиуретан HR 35 кг/м³</li>
+                        <li><strong>Размер:</strong> 250 x 160 x 90 см</li>
+                        <li><strong>Спальное место:</strong> 200 x 140 см</li>
+                        <li><strong>Механизм:</strong> еврокнижка</li>
+                        <li><strong>Цвет:</strong> бежевый</li>
+                        <li><strong>Нагрузка:</strong> до 300 кг</li>
+                        <li><strong>Гарантия:</strong> 5 лет</li>
+                        <li><strong>Страна производства:</strong> Россия</li>
+                    </ul>
+                </div>
+
+                <div class="product-actions">
+                    <button class="add-to-cart-large" onclick="addToCart(1, 'Диван Комфорт', 45990, '🛋️')">
+                        <i class="fas fa-cart-plus"></i> Добавить в корзину
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Секция с отзывами -->
+        <div class="reviews-section">
+            <h2>Отзывы покупателей</h2>
+            
+            <!-- Отзыв 1 -->
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="review-author">Анна Петрова</span>
+                    <span class="review-date">15 января 2025</span>
+                </div>
+                <div class="review-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="review-text">
+                    Диван просто супер! Очень удобный, спальное место большое. 
+                    Собирали сами, инструкция понятная. Цвет точно как на фото. 
+                    Всем советую!
+                </div>
+            </div>
+
+            <!-- Отзыв 2 -->
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="review-author">Михаил Соколов</span>
+                    <span class="review-date">3 января 2025</span>
+                </div>
+                <div class="review-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+                <div class="review-text">
+                    Хороший диван за свои деньги. Механизм трансформации работает плавно. 
+                    Минус: немного маркая ткань, но пятна выводятся легко. В целом доволен.
+                </div>
+            </div>
+
+            <!-- Отзыв 3 -->
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="review-author">Елена Козлова</span>
+                    <span class="review-date">22 декабря 2024</span>
+                </div>
+                <div class="review-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="review-text">
+                    Покупали для всей семьи. И дети, и взрослые оценили. 
+                    Очень мягкий, но при этом упругий. Спасибо магазину за быструю доставку!
+                </div>
+            </div>
+
+            <!-- Отзыв 4 -->
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="review-author">Дмитрий Иванов</span>
+                    <span class="review-date">10 декабря 2024</span>
+                </div>
+                <div class="review-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                </div>
+                <div class="review-text">
+                    Диван хороший, но доставка чуть задержалась. 
+                    Качество отличное, сборка заняла час. 
+                    Рекомендую!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="school-footer">
+        <div class="footer-container">
+            <div class="footer-info">
+                <p>&copy; 2025 Мебельный магазин "Уютный Дом". Все права защищены.</p>
+                <p>Телефон: +7 (495) 123-45-67 | Email: info@uytniydom.ru</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/static/auth.js"></script>
+    <script>
+        // Функция добавления в корзину
+        function addToCart(id, name, price, image) {
+            let cart = JSON.parse(localStorage.getItem('furnitureCart'));
+            
+            if (!cart) {
+                cart = { items: [], count: 0, total: 0 };
+            }
+            
+            const existingItem = cart.items.find(item => item.id === id);
+            
+            if (existingItem) {
+                existingItem.quantity = (existingItem.quantity || 1) + 1;
+            } else {
+                cart.items.push({
+                    id: id,
+                    name: name,
+                    price: price,
+                    image: image,
+                    quantity: 1
+                });
+            }
+            
+            cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+            
+            localStorage.setItem('furnitureCart', JSON.stringify(cart));
+            
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                cartCount.textContent = cart.count;
+            }
+            
+            alert(`✅ "${name}" добавлен в корзину!`);
+        }
+
+        // Обновляем счётчик корзины
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedCart = localStorage.getItem('furnitureCart');
+            if (savedCart) {
+                const cart = JSON.parse(savedCart);
+                document.getElementById('cartCount').textContent = cart.count || 0;
+            }
+        });
+    </script>
+</body>
+</html>
