@@ -25,7 +25,7 @@ templates = Jinja2Templates(directory=str(FRONTEND_DIR))
 
 def get_db_connection():
     """Создает соединение с SQLite базой"""
-    db_path = BASE_DIR / "data" / "school.db"
+    db_path = BASE_DIR / "data" / "shop.db"
     # Создаем папку data если её нет
     db_path.parent.mkdir(exist_ok=True)
 
@@ -206,11 +206,7 @@ async def login(request: Request):
 
 # Список существующих HTML файлов
 HTML_FILES = [
-    "index.html", "auth.html", "about.html", "contacts.html",
-    "english.html", "news.html", "parents.html", "profile.html",
-    "program.html", "schedule.html", "students.html", "teachers.html",
-    "news-single1.html", "news-single2.html", "news-single3.html",
-    "news-single4.html", "news-single5.html", "news-single6.html"
+    "index.html", "about.html", "contacts.html", "cart.html"
 ]
 
 
