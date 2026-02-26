@@ -116,16 +116,16 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="fullName">ФИО (необязательно)</label>
-                                    <input type="text" id="fullName" name="fullName" 
-                                           placeholder="Иванов Иван Иванович">
-                                </div>
+    <label for="fullName">ФИО <span class="required">*</span></label>
+    <input type="text" id="fullName" name="fullName" required
+           placeholder="Иванов Иван Иванович">
+</div>
 
-                                <div class="form-group">
-                                    <label for="phone">Телефон (необязательно)</label>
-                                    <input type="tel" id="phone" name="phone" 
-                                           placeholder="+7 (999) 123-45-67">
-                                </div>
+<div class="form-group">
+    <label for="phone">Телефон <span class="required">*</span></label>
+    <input type="tel" id="phone" name="phone" required
+           placeholder="+7 (999) 123-45-67">
+</div>
 
                                 <div class="form-group full-width">
                                     <div class="checkbox-item">
@@ -193,85 +193,88 @@
         });
 
         // Обработка регистрации
-        async function handleRegister(event) {
-            event.preventDefault();
-            
-            // Получаем значения полей
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const fullName = document.getElementById('fullName').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const agree = document.getElementById('agree').checked;
+        // Обработка регистрации
+async function handleRegister(event) {
+    event.preventDefault();
+    
+    // Получаем значения полей
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const fullName = document.getElementById('fullName').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const agree = document.getElementById('agree').checked;
 
-            // Валидация
-            if (!username || !email || !password || !confirmPassword) {
-                alert('Заполните все обязательные поля');
-                return;
-            }
+    // Валидация (ТЕПЕРЬ ВСЕ ПОЛЯ ОБЯЗАТЕЛЬНЫ)
+    if (!username || !email || !password || !confirmPassword || !fullName || !phone) {
+        alert('Заполните все обязательные поля');
+        return;
+    }
 
-            if (password.length < 6) {
-                alert('Пароль должен быть не менее 6 символов');
-                return;
-            }
+    if (username.length < 3) {
+        alert('Логин должен быть не менее 3 символов');
+        return;
+    }
 
-            if (password !== confirmPassword) {
-                alert('Пароли не совпадают');
-                return;
-            }
+    if (password.length < 6) {
+        alert('Пароль должен быть не менее 6 символов');
+        return;
+    }
 
-            if (!agree) {
-                alert('Необходимо согласие с условиями');
-                return;
-            }
+    if (password !== confirmPassword) {
+        alert('Пароли не совпадают');
+        return;
+    }
 
-            try {
-                // Отправляем запрос на сервер
-                const formData = new FormData();
-                formData.append('username', username);
-                formData.append('email', email);
-                formData.append('password', password);
-                if (fullName) formData.append('full_name', fullName);
-                if (phone) formData.append('phone', phone);
+    // Простая валидация телефона (не обязательно, но полезно)
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+        alert('Введите корректный номер телефона');
+        return;
+    }
 
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    body: formData
-                });
+    if (!agree) {
+        alert('Необходимо согласие с условиями');
+        return;
+    }
 
-                const result = await response.json();
+    try {
+        // Отправляем запрос на сервер
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('full_name', fullName);  // теперь всегда есть
+        formData.append('phone', phone);         // теперь всегда есть
 
-                if (result.success) {
-                    // Показываем блок успеха
-                    document.getElementById('registrationForm').style.display = 'none';
-                    document.getElementById('registrationSuccess').style.display = 'block';
-                    document.getElementById('registrationError').style.display = 'none';
-                } else {
-                    // Показываем ошибку
-                    document.getElementById('errorMessage').textContent = result.message || 'Ошибка при регистрации';
-                    document.getElementById('registrationForm').style.display = 'none';
-                    document.getElementById('registrationSuccess').style.display = 'none';
-                    document.getElementById('registrationError').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Registration error:', error);
-                document.getElementById('errorMessage').textContent = 'Ошибка соединения с сервером';
-                document.getElementById('registrationForm').style.display = 'none';
-                document.getElementById('registrationSuccess').style.display = 'none';
-                document.getElementById('registrationError').style.display = 'block';
-            }
-        }
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            body: formData
+        });
 
-        // Функция для повторной попытки
-        function tryAgain() {
-            document.getElementById('registrationForm').style.display = 'block';
-            document.getElementById('registrationSuccess').style.display = 'none';
+        const result = await response.json();
+
+        if (result.success) {
+            // Показываем блок успеха
+            document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('registrationSuccess').style.display = 'block';
             document.getElementById('registrationError').style.display = 'none';
-            
-            // Очищаем поля
-            document.getElementById('registerForm').reset();
+        } else {
+            // Показываем ошибку
+            document.getElementById('errorMessage').textContent = result.message || 'Ошибка при регистрации';
+            document.getElementById('registrationForm').style.display = 'none';
+            document.getElementById('registrationSuccess').style.display = 'none';
+            document.getElementById('registrationError').style.display = 'block';
         }
+    } catch (error) {
+        console.error('Registration error:', error);
+        document.getElementById('errorMessage').textContent = 'Ошибка соединения с сервером';
+        document.getElementById('registrationForm').style.display = 'none';
+        document.getElementById('registrationSuccess').style.display = 'none';
+        document.getElementById('registrationError').style.display = 'block';
+    }
+}
 
         // Обновляем счетчик корзины
         document.addEventListener('DOMContentLoaded', function() {
