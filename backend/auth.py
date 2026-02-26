@@ -1,26 +1,23 @@
-from passlib.context import CryptContext
-from jose import JWTError, jwt
-from datetime import datetime, timedelta
-from fastapi import HTTPException, status
-from .models import User
-from sqlalchemy.orm import Session
+import hashlib
 import os
+from datetime import datetime, timedelta
+from jose import JWTError, jwt
+from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
+from models import User
 
 # Секретный ключ для JWT
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
+    """Проверка пароля через SHA-256"""
+    return hashlib.sha256(plain_password.encode()).hexdigest() == hashed_password
 
 def get_password_hash(password):
-    return pwd_context.hash(password)
-
+    """Хеширование пароля через SHA-256"""
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
@@ -32,15 +29,14 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-
 def authenticate_user(db: Session, username: str, password: str):
+    """Аутентификация пользователя"""
     user = db.query(User).filter(User.username == username).first()
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
         return False
     return user
-
 
 def get_current_user(db: Session, token: str):
     credentials_exception = HTTPException(

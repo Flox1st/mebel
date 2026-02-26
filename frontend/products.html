@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Шапка сайта -->
     <header class="school-header">
         <div class="header-container">
             <div class="logo-section">
@@ -36,7 +35,7 @@
                 </div>
                 
                 <div class="cart-icon">
-                    <a href="cart.html" class="cart-link">
+                    <a href="/cart" class="cart-link">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Корзина</span>
                         <span class="cart-count" id="cartCount">0</span>
@@ -46,35 +45,37 @@
         </div>
     </header>
 
-    <!-- Навигация -->
     <nav class="main-nav">
         <div class="nav-container">
-            <a href="index.html" class="nav-link">Главная</a>
-            <a href="products.html" class="nav-link active">Каталог</a>
-            <a href="about.html" class="nav-link">О нас</a>
-            <a href="contacts.html" class="nav-link">Контакты</a>
+            <a href="/" class="nav-link active">Главная</a>
+            <a href="/products" class="nav-link">Каталог</a>
+            <a href="/about" class="nav-link">О нас</a>
+            <a href="/contacts" class="nav-link">Контакты</a>
         </div>
     </nav>
 
-    <!-- Основной контент -->
     <div class="products-page">
         <div class="products-container">
-            <!-- Заголовок -->
             <div class="products-header">
                 <h1>Каталог мебели</h1>
                 <p>Только самая качественная мебель для вашего дома</p>
             </div>
 
-            <!-- Фильтры -->
             <div class="products-filters">
+                <div class="filter-row">
+                    <div class="filter-group search-group">
+                        <label for="searchInput"><i class="fas fa-search"></i> Поиск:</label>
+                        <input type="text" id="searchInput" class="filter-select" placeholder="Введите название товара..." style="width: 300px;">
+                    </div>
+                </div>
                 <div class="filter-row">
                     <div class="filter-group">
                         <label for="categoryFilter">Категория:</label>
                         <select id="categoryFilter" class="filter-select">
                             <option value="all">Все товары</option>
-                            <option value="sofas">Диваны</option>
-                            <option value="beds">Кровати</option>
-                            <option value="tables">Столы</option>
+                            <option value="Диваны">Диваны</option>
+                            <option value="Кровати">Кровати</option>
+                            <option value="Столы">Столы</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -85,300 +86,20 @@
                             <option value="price-desc">По убыванию цены</option>
                         </select>
                     </div>
+                    <div class="filter-group">
+                        <button id="resetFiltersBtn" class="reset-filters-btn">
+                            <i class="fas fa-undo"></i> Сбросить фильтры
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Сетка товаров -->
             <div class="products-grid" id="productsGrid">
-                <!-- Диван 1 -->
-                <div class="product-card-full" data-category="sofas" data-id="1" data-price="45990" data-name="Диван Комфорт">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/divan1.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Диван "Комфорт"</h3>
-                        <p class="product-description">Угловой диван с механизмом трансформации</p>
-                        <div class="product-price">45 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Диваны</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(1, 'Диван Комфорт', 45990, '🛋️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-1.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Диван 2 -->
-                <div class="product-card-full" data-category="sofas" data-id="2" data-price="38990" data-name="Диван Уют">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/divan2.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Диван "Уют"</h3>
-                        <p class="product-description">Прямой диван с подлокотниками, компактный</p>
-                        <div class="product-price">38 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Диваны</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(2, 'Диван Уют', 38990, '🛋️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-2.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Диван 3 -->
-                <div class="product-card-full" data-category="sofas" data-id="3" data-price="52990" data-name="Диван Престиж">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/divan3.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Диван "Престиж"</h3>
-                        <p class="product-description">Кожаный диван с электроприводом</p>
-                        <div class="product-price">52 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Диваны</span>
-                            <span class="product-stock">Под заказ</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(3, 'Диван Престиж', 52990, '🛋️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-3.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Диван 4 -->
-                <div class="product-card-full" data-category="sofas" data-id="4" data-price="32990" data-name="Диван Компакт">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/divan4.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Диван "Компакт"</h3>
-                        <p class="product-description">Маленький диван для кухни или прихожей</p>
-                        <div class="product-price">32 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Диваны</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(4, 'Диван Компакт', 32990, '🛋️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-4.html">Подробнее</a>
-                    </div>
-                </div>
-                <!-- Кровать 1 -->
-                <div class="product-card-full" data-category="beds" data-id="5" data-price="32990" data-name="Кровать Спокойствие">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/krovat1.jpg" alt="Кровать" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Кровать "Спокойствие"</h3>
-                        <p class="product-description">Двуспальная кровать с ортопедическим основанием</p>
-                        <div class="product-price">32 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Кровати</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(5, 'Кровать Спокойствие', 32990, '🛏️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-5.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Кровать 2 -->
-                <div class="product-card-full" data-category="beds" data-id="6" data-price="45990" data-name="Кровать Престиж">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/krovat2.jpg" alt="Кровать" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Кровать "Престиж"</h3>
-                        <p class="product-description">Кровать с мягким изголовьем из велюра</p>
-                        <div class="product-price">45 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Кровати</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(6, 'Кровать Престиж', 45990, '🛏️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-6.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Кровать 3 -->
-                <div class="product-card-full" data-category="beds" data-id="7" data-price="24990" data-name="Кровать Односпальная">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/krovat3.jpg" alt="Кровать" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Кровать односпальная</h3>
-                        <p class="product-description">Для подростковой или гостевой комнаты</p>
-                        <div class="product-price">24 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Кровати</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(7, 'Кровать Односпальная', 24990, '🛏️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-7.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Кровать 4 -->
-                <div class="product-card-full" data-category="beds" data-id="8" data-price="39990" data-name="Кровать Детская">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/krovat4.jpg" alt="Кровать" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Кровать детская</h3>
-                        <p class="product-description">С бортиками и безопасным дизайном</p>
-                        <div class="product-price">39 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Кровати</span>
-                            <span class="product-stock">Под заказ</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(8, 'Кровать Детская', 39990, '🛏️')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-8.html">Подробнее</a>
-                    </div>
-                </div>
-                <!-- Стол 1 -->
-                <div class="product-card-full" data-category="tables" data-id="9" data-price="18990" data-name="Стол обеденный">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/stol1.jpg" alt="Стол" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Стол обеденный</h3>
-                        <p class="product-description">Раскладной стол из массива дуба</p>
-                        <div class="product-price">18 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Столы</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(9, 'Стол обеденный', 18990, '🪑')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-9.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Стол 2 -->
-                <div class="product-card-full" data-category="tables" data-id="10" data-price="24990" data-name="Стол письменный">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/stol2.jpg" alt="Стол" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Стол письменный</h3>
-                        <p class="product-description">С ящиками для хранения</p>
-                        <div class="product-price">24 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Столы</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(10, 'Стол письменный', 24990, '🪑')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-10.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Стол 3 -->
-                <div class="product-card-full" data-category="tables" data-id="11" data-price="32990" data-name="Стол компьютерный">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/stol3.jpg" alt="Стол" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Стол компьютерный</h3>
-                        <p class="product-description">С полкой для системного блока</p>
-                        <div class="product-price">32 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Столы</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(11, 'Стол компьютерный', 32990, '🪑')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-11.html">Подробнее</a>
-                    </div>
-                </div>
-
-                <!-- Стол 4 -->
-                <div class="product-card-full" data-category="tables" data-id="12" data-price="15990" data-name="Стол журнальный">
-                    <div class="product-image-full">
-                        <img src="/static/images/products/stol4.jpg" alt="Стол" style="width: 100%; height: 100%; object-fit: cover;">
-                    </div>
-                    <div class="product-details">
-                        <h3 class="product-title">Стол журнальный</h3>
-                        <p class="product-description">Маленький столик для гостиной</p>
-                        <div class="product-price">15 990 ₽</div>
-                        <div class="product-meta">
-                            <span class="product-category">Столы</span>
-                            <span class="product-stock">В наличии</span>
-                        </div>
-                        <button class="add-to-cart-btn" onclick="addToCart(12, 'Стол журнальный', 15990, '🪑')">
-                            <i class="fas fa-cart-plus"></i> В корзину
-                        </button>
-                        <a href="/product-12.html">Подробнее</a>
-                    </div>
-                </div>
+                <!-- Товары загружаются через JavaScript -->
             </div>
         </div>
     </div>
 
-    <!-- ========== МОДАЛЬНЫЕ ОКНА ДЛЯ ТОВАРОВ ========== -->
-    <div id="productModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2 id="modalProductTitle">Диван "Комфорт"</h2>
-                <button class="close-modal" onclick="closeProductModal()">&times;</button>
-            </div>
-            <div class="modal-body" style="text-align: center;">
-                <div style="font-size: 6em; margin: 20px 0;" id="modalProductImage">🛋️</div>
-                
-                <div style="background: var(--light-beige); padding: 20px; border-radius: var(--radius-md); margin: 20px 0;">
-                    <p id="modalProductDescription" style="font-size: 1.1em; margin-bottom: 15px;">
-                        Угловой диван с механизмом трансформации. Обивка - велюр, наполнитель - пенополиуретан.
-                    </p>
-                    <p style="font-size: 1.3em; font-weight: bold; color: var(--danger-red);" id="modalProductPrice">
-                        45 990 ₽
-                    </p>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
-                    <div style="background: var(--gray-light); padding: 10px; border-radius: var(--radius-sm);">
-                        <strong>Категория:</strong><br>
-                        <span id="modalProductCategory">Диваны</span>
-                    </div>
-                    <div style="background: var(--gray-light); padding: 10px; border-radius: var(--radius-sm);">
-                        <strong>Наличие:</strong><br>
-                        <span id="modalProductStock" style="color: var(--success-green);">В наличии</span>
-                    </div>
-                </div>
-
-                <div style="margin: 20px 0; padding: 15px; border-top: 1px solid #eee;">
-                    <h4>Характеристики:</h4>
-                    <ul style="text-align: left; margin-top: 10px;" id="modalProductSpecs">
-                        <li>Материал: велюр</li>
-                        <li>Каркас: массив сосны</li>
-                        <li>Размер: 250x160x90 см</li>
-                        <li>Механизм: еврокнижка</li>
-                    </ul>
-                </div>
-
-                <button class="add-to-cart-btn" onclick="addToCartFromModal()" style="margin-top: 10px;">
-                    <i class="fas fa-cart-plus"></i> Добавить в корзину
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Подвал -->
     <footer class="school-footer">
         <div class="footer-container">
             <div class="footer-info">
@@ -389,585 +110,211 @@
     </footer>
 
     <script src="/static/auth.js"></script>
-    
     <script>
-        // ========== ДАННЫЕ ТОВАРОВ ДЛЯ МОДАЛЬНЫХ ОКОН ==========
-        const productsData = {
-            1: {
-                name: 'Диван "Комфорт"',
-                description: 'Угловой диван с механизмом трансформации. Обивка - велюр, наполнитель - пенополиуретан. Идеально подходит для просторных гостиных.',
-                price: 45990,
-                image: '🛋️',
-                category: 'Диваны',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: велюр',
-                    'Каркас: массив сосны',
-                    'Размер: 250x160x90 см',
-                    'Механизм: еврокнижка',
-                    'Цвет: бежевый'
-                ]
-            },
-            2: {
-                name: 'Диван "Уют"',
-                description: 'Прямой диван с подлокотниками. Компактный, идеально для небольших комнат. Обивка - микрофибра.',
-                price: 38990,
-                image: '🛋️',
-                category: 'Диваны',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: микрофибра',
-                    'Каркас: ЛДСП',
-                    'Размер: 200x90x85 см',
-                    'Цвет: серый'
-                ]
-            },
-            3: {
-                name: 'Диван "Престиж"',
-                description: 'Кожаный диван с электроприводом. Регулировка положения спинки и подставки для ног. Премиум-класс.',
-                price: 52990,
-                image: '🛋️',
-                category: 'Диваны',
-                stock: 'Под заказ',
-                specs: [
-                    'Материал: натуральная кожа',
-                    'Каркас: металл',
-                    'Размер: 230x100x85 см',
-                    'Электропривод: 2 мотора',
-                    'Цвет: коричневый'
-                ]
-            },
-            4: {
-                name: 'Диван "Компакт"',
-                description: 'Маленький диван для кухни или прихожей. Легкий, удобный, легко моется.',
-                price: 32990,
-                image: '🛋️',
-                category: 'Диваны',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: экокожа',
-                    'Каркас: металл',
-                    'Размер: 140x80x85 см',
-                    'Цвет: белый'
-                ]
-            },
-            5: {
-                name: 'Кровать "Спокойствие"',
-                description: 'Двуспальная кровать с ортопедическим основанием. Материал - массив сосны.',
-                price: 32990,
-                image: '🛏️',
-                category: 'Кровати',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: массив сосны',
-                    'Основание: ортопедическое',
-                    'Размер: 160x200 см',
-                    'Высота: 45 см'
-                ]
-            },
-            6: {
-                name: 'Кровать "Престиж"',
-                description: 'Кровать с мягким изголовьем из велюра. Очень уютная и стильная.',
-                price: 45990,
-                image: '🛏️',
-                category: 'Кровати',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: велюр + ЛДСП',
-                    'Основание: ортопедическое',
-                    'Размер: 180x200 см',
-                    'Цвет: синий'
-                ]
-            },
-            7: {
-                name: 'Кровать односпальная',
-                description: 'Для подростковой или гостевой комнаты. Простая и надежная.',
-                price: 24990,
-                image: '🛏️',
-                category: 'Кровати',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: ЛДСП',
-                    'Размер: 90x200 см',
-                    'Цвет: белый'
-                ]
-            },
-            8: {
-                name: 'Кровать детская',
-                description: 'С бортиками и безопасным дизайном. Для детей от 3 до 10 лет.',
-                price: 39990,
-                image: '🛏️',
-                category: 'Кровати',
-                stock: 'Под заказ',
-                specs: [
-                    'Материал: массив березы',
-                    'Размер: 80x160 см',
-                    'С бортиками',
-                    'Цвет: натуральный'
-                ]
-            },
-            9: {
-                name: 'Стол обеденный',
-                description: 'Раскладной стол из массива дуба. Покрытие - матовый лак. Складывается до компактных размеров.',
-                price: 18990,
-                image: '🪑',
-                category: 'Столы',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: дуб',
-                    'Размер: 120x80 см',
-                    'В разложенном виде: 180x80 см',
-                    'Цвет: натуральный'
-                ]
-            },
-            10: {
-                name: 'Стол письменный',
-                description: 'С ящиками для хранения. Удобное рабочее место для дома.',
-                price: 24990,
-                image: '🪑',
-                category: 'Столы',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: ЛДСП',
-                    'Размер: 140x70 см',
-                    '3 ящика',
-                    'Цвет: венге'
-                ]
-            },
-            11: {
-                name: 'Стол компьютерный',
-                description: 'С полкой для системного блока и выдвижной панелью для клавиатуры.',
-                price: 32990,
-                image: '🪑',
-                category: 'Столы',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: ЛДСП',
-                    'Размер: 160x80 см',
-                    'С полкой для системника',
-                    'Цвет: черный'
-                ]
-            },
-            12: {
-                name: 'Стол журнальный',
-                description: 'Маленький столик для гостиной. Легкий, стильный, удобный.',
-                price: 15990,
-                image: '🪑',
-                category: 'Столы',
-                stock: 'В наличии',
-                specs: [
-                    'Материал: стекло + металл',
-                    'Размер: 80x50 см',
-                    'Цвет: прозрачный'
-                ]
-            }
+    // ========== ФУНКЦИЯ ДЛЯ КАРТИНОК ==========
+    function getProductImage(productId, emoji) {
+        // Маппинг ID товаров на пути к картинкам
+        const imageMap = {
+            1: '/static/images/products/divan1.jpg',
+            2: '/static/images/products/divan2.jpg',
+            3: '/static/images/products/divan3.jpg',
+            4: '/static/images/products/divan4.jpg',
+            5: '/static/images/products/krovat1.jpg',
+            6: '/static/images/products/krovat2.jpg',
+            7: '/static/images/products/krovat3.jpg',
+            8: '/static/images/products/krovat4.jpg',
+            9: '/static/images/products/stol1.jpg',
+            10: '/static/images/products/stol2.jpg',
+            11: '/static/images/products/stol3.jpg',
+            12: '/static/images/products/stol4.jpg'
         };
+        
+        const imagePath = imageMap[productId];
+        if (imagePath) {
+            return `<img src="${imagePath}" alt="Product" style="width: 100%; height: 100%; object-fit: cover;">`;
+        } else {
+            return `<span style="font-size: 4em;">${emoji}</span>`;
+        }
+    }
 
-        // ========== ПЕРЕМЕННАЯ ДЛЯ ТЕКУЩЕГО ТОВАРА ==========
-        let currentProductId = null;
-
-        // ========== ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ МОДАЛЬНОГО ОКНА ==========
-        function openProductModal(id) {
-            const product = productsData[id];
-            if (!product) return;
-            
-            currentProductId = id;
-            
-            document.getElementById('modalProductTitle').textContent = product.name;
-            document.getElementById('modalProductImage').textContent = product.image;
-            document.getElementById('modalProductDescription').textContent = product.description;
-            document.getElementById('modalProductPrice').textContent = product.price.toLocaleString() + ' ₽';
-            document.getElementById('modalProductCategory').textContent = product.category;
-            
-            const stockSpan = document.getElementById('modalProductStock');
-            stockSpan.textContent = product.stock;
-            stockSpan.style.color = product.stock === 'В наличии' ? 'var(--success-green)' : 'var(--warning-orange)';
-            
-            // Заполняем характеристики
-            const specsList = document.getElementById('modalProductSpecs');
-            specsList.innerHTML = '';
-            product.specs.forEach(spec => {
-                const li = document.createElement('li');
-                li.textContent = spec;
-                specsList.appendChild(li);
+    // Функция добавления в корзину
+    function addToCart(id, name, price, image) {
+        let cart = JSON.parse(localStorage.getItem('furnitureCart'));
+        if (!cart) cart = { items: [], count: 0, total: 0 };
+        
+        const existingItem = cart.items.find(item => item.id === id);
+        if (existingItem) {
+            existingItem.quantity = (existingItem.quantity || 1) + 1;
+        } else {
+            cart.items.push({ 
+                id: id, 
+                name: name, 
+                price: price, 
+                image: image, 
+                quantity: 1 
             });
-            
-            document.getElementById('productModal').style.display = 'block';
-            document.body.style.overflow = 'hidden';
         }
+        
+        cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+        cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+        
+        localStorage.setItem('furnitureCart', JSON.stringify(cart));
+        document.getElementById('cartCount').textContent = cart.count;
+        alert(`✅ "${name}" добавлен в корзину!`);
+    }
 
-        // ========== ФУНКЦИЯ ДЛЯ ЗАКРЫТИЯ МОДАЛЬНОГО ОКНА ==========
-        function closeProductModal() {
-            document.getElementById('productModal').style.display = 'none';
-            document.body.style.overflow = '';
-            currentProductId = null;
+    // Хранилище для всех загруженных товаров
+    let allProducts = [];
+
+    // Функция фильтрации товаров
+    function filterProducts() {
+        const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
+        const category = document.getElementById('categoryFilter').value;
+        
+        // Фильтруем по поиску и категории
+        const filtered = allProducts.filter(product => {
+            const matchesSearch = product.name.toLowerCase().includes(searchQuery);
+            const matchesCategory = category === 'all' || product.category === category;
+            return matchesSearch && matchesCategory;
+        });
+
+        // Применяем сортировку
+        const sortType = document.getElementById('sortFilter').value;
+        sortProducts(filtered, sortType);
+        
+        // Отображаем отфильтрованные товары
+        displayProducts(filtered);
+    }
+
+    // Функция сортировки
+    function sortProducts(products, sortType) {
+        switch(sortType) {
+            case 'price-asc':
+                products.sort((a, b) => a.price - b.price);
+                break;
+            case 'price-desc':
+                products.sort((a, b) => b.price - a.price);
+                break;
+            case 'popular':
+            default:
+                // По умолчанию сортируем по популярности (можно добавить поле popularity)
+                products.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+                break;
         }
+    }
 
-        // ========== ФУНКЦИЯ ДЛЯ ДОБАВЛЕНИЯ ИЗ МОДАЛЬНОГО ОКНА ==========
-        function addToCartFromModal() {
-            if (currentProductId) {
-                const product = productsData[currentProductId];
-                addToCart(currentProductId, product.name, product.price, product.image);
-                closeProductModal();
-            }
+    // Функция отображения товаров
+    function displayProducts(products) {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = '';
+        
+        if (products.length === 0) {
+            grid.innerHTML = '<div style="text-align: center; padding: 50px;">Товары не найдены</div>';
+            return;
         }
-
-        // ========== УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ДОБАВЛЕНИЯ В КОРЗИНУ ==========
-        function addToCart(id, name, price, image) {
-            // Загружаем корзину
-            let cart = JSON.parse(localStorage.getItem('furnitureCart'));
+        
+        products.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'product-card-full';
+            card.dataset.category = product.category;
             
-            if (!cart) {
-                cart = { items: [], count: 0, total: 0 };
-            }
+            const productImage = getProductImage(product.id, product.image);
             
-            // Ищем товар
-            const existingItem = cart.items.find(item => item.id === id);
-            
-            if (existingItem) {
-                existingItem.quantity = (existingItem.quantity || 1) + 1;
-            } else {
-                cart.items.push({
-                    id: id,
-                    name: name,
-                    price: price,
-                    image: image,
-                    quantity: 1
-                });
-            }
-            
-            // Пересчитываем
-            cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-            cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-            
-            // Сохраняем
-            localStorage.setItem('furnitureCart', JSON.stringify(cart));
-            
-            // Обновляем счётчик
-            const cartCount = document.getElementById('cartCount');
-            if (cartCount) {
-                cartCount.textContent = cart.count;
-            }
-            
-            // Анимация кнопки
-            const btn = event?.target?.closest('.add-to-cart-btn');
-            if (btn) {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check"></i> Добавлено';
-                btn.style.background = 'var(--success-green)';
-                
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.style.background = '';
-                }, 1500);
-            } else {
-                // Если кнопки нет (например, из модального окна), просто показываем уведомление
-                showNotification(`✅ "${name}" добавлен в корзину!`);
-            }
-        }
-
-        // ========== УВЕДОМЛЕНИЯ ==========
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: var(--success-green);
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: var(--radius-md);
-                    box-shadow: var(--shadow-lg);
-                    z-index: 9999;
-                    animation: slideIn 0.3s ease;
-                ">
-                    <i class="fas fa-check-circle"></i> ${message}
+            card.innerHTML = `
+                <div class="product-image-full">
+                    ${productImage}
+                </div>
+                <div class="product-details">
+                    <h3 class="product-title">${product.name}</h3>
+                    <p class="product-description">${product.description.substring(0, 50)}...</p>
+                    <div class="product-price">${product.price.toLocaleString()} ₽</div>
+                    <div class="product-meta">
+                        <span class="product-category">${product.category}</span>
+                        <span class="product-stock">${product.stock}</span>
+                    </div>
+                    <a href="/product/${product.id}" class="product-details-btn" style="display: block; text-align: center;">
+                        <i class="fas fa-info-circle"></i> Подробнее
+                    </a>
+                    <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${product.image}')">
+                        <i class="fas fa-cart-plus"></i> В корзину
+                    </button>
                 </div>
             `;
             
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        }
-
-        // ========== ФИЛЬТРАЦИЯ ==========
-        document.getElementById('categoryFilter').addEventListener('change', filterProducts);
-        document.getElementById('sortFilter').addEventListener('change', sortProducts);
-
-        function filterProducts() {
-            const category = document.getElementById('categoryFilter').value;
-            const products = document.querySelectorAll('.product-card-full');
-            
-            products.forEach(product => {
-                if (category === 'all' || product.dataset.category === category) {
-                    product.style.display = 'flex';
-                } else {
-                    product.style.display = 'none';
-                }
-            });
-        }
-
-        function sortProducts() {
-            const sortBy = document.getElementById('sortFilter').value;
-            const grid = document.getElementById('productsGrid');
-            const products = Array.from(document.querySelectorAll('.product-card-full'));
-            
-            products.sort((a, b) => {
-                if (sortBy === 'price-asc') {
-                    return parseInt(a.dataset.price) - parseInt(b.dataset.price);
-                } else if (sortBy === 'price-desc') {
-                    return parseInt(b.dataset.price) - parseInt(a.dataset.price);
-                }
-                return 0;
-            });
-            
-            products.forEach(product => grid.appendChild(product));
-        }
-
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
-        document.addEventListener('DOMContentLoaded', function() {
-            // Обновляем счётчик корзины
-            const savedCart = localStorage.getItem('furnitureCart');
-            if (savedCart) {
-                const cart = JSON.parse(savedCart);
-                document.getElementById('cartCount').textContent = cart.count || 0;
-            }
-            
-            // Закрытие модального окна при клике вне его
-            window.addEventListener('click', function(event) {
-                const modal = document.getElementById('productModal');
-                if (event.target === modal) {
-                    closeProductModal();
-                }
-            });
+            grid.appendChild(card);
         });
+    }
 
-        // Стили для кнопки "Подробнее"
-        const style = document.createElement('style');
-        style.textContent = `
-            .product-details-btn {
-                background: var(--light-beige);
-                color: var(--primary-wood);
-                border: 2px solid var(--primary-wood);
-                padding: 8px 16px;
-                border-radius: var(--radius-sm);
-                cursor: pointer;
-                font-weight: bold;
-                transition: all 0.3s;
-                width: 100%;
-                margin-top: 8px;
-            }
-            .product-details-btn:hover {
-                background: var(--primary-wood);
-                color: white;
-            }
-            .modal-body ul {
-                list-style: none;
-                padding: 0;
-            }
-            .modal-body li {
-                padding: 5px 0;
-                border-bottom: 1px solid #eee;
-            }
-            .modal-body li:last-child {
-                border-bottom: none;
-            }
-        `;
-        document.head.appendChild(style);
+    // Функция загрузки товаров
+    async function loadProducts() {
+        console.log("Загружаю товары...");
+        
+        const category = document.getElementById('categoryFilter').value;
+        const url = category === 'all' 
+            ? '/api/products' 
+            : `/api/products?category=${category}`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            allProducts = data.products; // Сохраняем все товары
+            filterProducts(); // Применяем фильтрацию
+            
+            console.log("Товары загружены:", allProducts.length);
+            
+        } catch (error) {
+            console.error("Ошибка загрузки товаров:", error);
+        }
+    }
+
+    // Функция сброса всех фильтров
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('categoryFilter').value = 'all';
+        document.getElementById('sortFilter').value = 'popular';
+        loadProducts(); // Перезагружаем товары
+    }
+
+    // Debounce функция для поиска
+    function debounce(func, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Слушатели событий
+    document.getElementById('categoryFilter').addEventListener('change', function() {
+        loadProducts(); // При смене категории загружаем новые данные с сервера
+    });
+
+    document.getElementById('sortFilter').addEventListener('change', function() {
+        filterProducts(); // Применяем сортировку к текущим данным
+    });
+
+    // Поиск с debounce для избежания частых вызовов
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', debounce(function() {
+        filterProducts();
+    }, 300));
+
+    // Кнопка сброса фильтров
+    document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+
+    // Загрузка при старте
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Страница загружена");
+        loadProducts();
+        
+        const savedCart = localStorage.getItem('furnitureCart');
+        if (savedCart) {
+            const cart = JSON.parse(savedCart);
+            document.getElementById('cartCount').textContent = cart.count || 0;
+        }
+    });
     </script>
-    <script>
-// ========== ПРОСТЕЙШАЯ ПРОВЕРКА ==========
-console.log('Скрипт загружен!');
-
-// Проверяем, есть ли данные
-if (typeof productsData !== 'undefined') {
-    console.log('Данные товаров найдены!', Object.keys(productsData).length + ' товаров');
-} else {
-    console.log('ОШИБКА: productsData не определён!');
-}
-
-// Проверяем, есть ли модальное окно
-const modal = document.getElementById('productModal');
-if (modal) {
-    console.log('Модальное окно найдено!');
-} else {
-    console.log('ОШИБКА: модальное окно не найдено!');
-}
-
-// Временная функция для теста
-function testModal() {
-    alert('Кнопка работает!');
-    const modal = document.getElementById('productModal');
-    if (modal) {
-        modal.style.display = 'block';
-    } else {
-        alert('Модальное окно не найдено!');
-    }
-}
-</script>
-<!-- ПРАВИЛЬНЫЕ СТИЛИ ДЛЯ МОДАЛЬНЫХ ОКОН -->
-<style>
-    /* Переопределяем стили модальных окон */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.6);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-    }
     
-    .modal-content {
-        background-color: white;
-        margin: auto;
-        width: 90%;
-        max-width: 500px;
-        border-radius: 12px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        animation: modalFadeIn 0.3s ease;
-        position: relative;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    
-    @keyframes modalFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(-50%);
-        }
-    }
-    
-    .modal-header {
-        background: linear-gradient(135deg, var(--primary-wood), var(--secondary-wood));
-        color: white;
-        padding: 15px 20px;
-        border-radius: 12px 12px 0 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .modal-header h2 {
-        color: white;
-        margin: 0;
-        font-size: 1.5em;
-    }
-    
-    .close-modal {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 2em;
-        cursor: pointer;
-        line-height: 1;
-    }
-    
-    .close-modal:hover {
-        opacity: 0.8;
-    }
-    
-    .modal-body {
-        padding: 20px;
-        max-height: 60vh;
-        overflow-y: auto;
-    }
-    
-    .modal-body ul {
-        list-style: none;
-        padding: 0;
-        margin: 10px 0;
-    }
-    
-    .modal-body li {
-        padding: 8px 0;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .modal-body li:last-child {
-        border-bottom: none;
-    }
-    
-    .product-details-btn {
-        background: var(--light-beige);
-        color: var(--primary-wood);
-        border: 2px solid var(--primary-wood);
-        padding: 8px 16px;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        font-weight: bold;
-        transition: all 0.3s;
-        width: 100%;
-        margin-top: 8px;
-    }
-    
-    .product-details-btn:hover {
-        background: var(--primary-wood);
-        color: white;
-    }
-</style>
-
-<script>
-// ========== УЛУЧШЕННАЯ ФУНКЦИЯ ОТКРЫТИЯ МОДАЛЬНОГО ОКНА ==========
-function openProductModal(id) {
-    console.log('Открываем товар:', id);
-    
-    const product = productsData[id];
-    if (!product) {
-        console.error('Товар не найден!');
-        return;
-    }
-    
-    // Заполняем данные
-    document.getElementById('modalProductTitle').textContent = product.name;
-    document.getElementById('modalProductImage').textContent = product.image;
-    document.getElementById('modalProductDescription').textContent = product.description;
-    document.getElementById('modalProductPrice').textContent = product.price.toLocaleString() + ' ₽';
-    document.getElementById('modalProductCategory').textContent = product.category;
-    
-    const stockSpan = document.getElementById('modalProductStock');
-    stockSpan.textContent = product.stock;
-    stockSpan.style.color = product.stock === 'В наличии' ? '#2F6B4A' : '#C47E2E';
-    
-    // Заполняем характеристики
-    const specsList = document.getElementById('modalProductSpecs');
-    specsList.innerHTML = '';
-    product.specs.forEach(spec => {
-        const li = document.createElement('li');
-        li.textContent = spec;
-        specsList.appendChild(li);
-    });
-    
-    currentProductId = id;
-    
-    // Показываем окно
-    const modal = document.getElementById('productModal');
-    modal.style.display = 'flex';  // важно: flex, а не block!
-    document.body.style.overflow = 'hidden';
-}
-
-function closeProductModal() {
-    document.getElementById('productModal').style.display = 'none';
-    document.body.style.overflow = '';
-    currentProductId = null;
-}
-
-// Закрытие при клике вне окна
-document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('productModal');
-    modal.addEventListener('click', function(event) {
-        if (event.target === modal) {
-            closeProductModal();
-        }
-    });
-});
-</script>
 </body>
 </html>

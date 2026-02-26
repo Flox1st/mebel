@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Шапка сайта -->
     <header class="school-header">
         <div class="header-container">
             <div class="logo-section">
@@ -36,7 +35,7 @@
                 </div>
                 
                 <div class="cart-icon">
-                    <a href="cart.html" class="cart-link">
+                    <a href="/cart" class="cart-link">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Корзина</span>
                         <span class="cart-count" id="cartCount">0</span>
@@ -46,26 +45,22 @@
         </div>
     </header>
 
-    <!-- Навигация -->
     <nav class="main-nav">
         <div class="nav-container">
-            <a href="index.html" class="nav-link">Главная</a>
-            <a href="products.html" class="nav-link">Каталог</a>
-            <a href="about.html" class="nav-link">О нас</a>
-            <a href="contacts.html" class="nav-link">Контакты</a>
+            <a href="/" class="nav-link">Главная</a>
+            <a href="/products" class="nav-link">Каталог</a>
+            <a href="/about" class="nav-link">О нас</a>
+            <a href="/contacts" class="nav-link">Контакты</a>
         </div>
     </nav>
 
-    <!-- Страница корзины -->
     <div class="cart-page">
         <div class="cart-container">
-            <!-- Заголовок -->
             <div class="cart-header">
                 <h1>Ваша корзина</h1>
                 <p>Проверьте товары перед оформлением заказа</p>
             </div>
 
-            <!-- Блок для сообщений о необходимости авторизации -->
             <div id="authMessage" style="display: none; background: #fff5f5; border-left: 4px solid var(--danger-red); padding: 20px; margin-bottom: 20px; border-radius: var(--radius-md);">
                 <h3 style="color: var(--danger-red); margin-bottom: 10px;">
                     <i class="fas fa-exclamation-triangle"></i> Требуется авторизация
@@ -79,16 +74,14 @@
                 </a>
             </div>
 
-            <!-- Основной контент -->
             <div id="cartContent">
                 <!-- Корзина загружается через JavaScript -->
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно оформления заказа -->
     <div id="checkoutModal" class="modal" style="display: none;">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
                 <h2>Оформление заказа</h2>
                 <button class="close-modal" onclick="closeCheckoutModal()">&times;</button>
@@ -141,7 +134,6 @@
         </div>
     </div>
 
-    <!-- Подвал -->
     <footer class="school-footer">
         <div class="footer-container">
             <div class="footer-info">
@@ -154,16 +146,12 @@
     <script src="/static/auth.js"></script>
     
     <script>
-        // ===== ФУНКЦИЯ ПРОВЕРКИ АВТОРИЗАЦИИ =====
         function isUserLoggedIn() {
-            // Проверяем оба возможных ключа (для совместимости)
             return localStorage.getItem('authToken') !== null || 
                    localStorage.getItem('userLoggedIn') === 'true';
         }
 
-        // ===== УПРАВЛЕНИЕ КОРЗИНОЙ =====
         const CartManager = {
-            // Загрузить корзину
             loadCart() {
                 const savedCart = localStorage.getItem('furnitureCart');
                 return savedCart ? JSON.parse(savedCart) : {
@@ -173,13 +161,11 @@
                 };
             },
             
-            // Сохранить корзину
             saveCart(cart) {
                 localStorage.setItem('furnitureCart', JSON.stringify(cart));
                 this.updateCartCount(cart);
             },
             
-            // Обновить счетчик в шапке
             updateCartCount(cart) {
                 const cartCountElement = document.getElementById('cartCount');
                 if (cartCountElement) {
@@ -187,14 +173,12 @@
                 }
             },
             
-            // Пересчитать корзину
             recalculate(cart) {
                 cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-                cart.total = cart.items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
+                cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
                 return cart;
             },
             
-            // Удалить товар
             removeItem(productId) {
                 let cart = this.loadCart();
                 cart.items = cart.items.filter(item => item.id != productId);
@@ -203,7 +187,6 @@
                 return cart;
             },
             
-            // Изменить количество
             updateQuantity(productId, newQuantity) {
                 if (newQuantity < 1) return this.removeItem(productId);
                 
@@ -217,7 +200,6 @@
                 return cart;
             },
             
-            // Очистить корзину
             clearCart() {
                 const emptyCart = { items: [], total: 0, count: 0 };
                 this.saveCart(emptyCart);
@@ -225,14 +207,12 @@
             }
         };
 
-        // ===== РЕНДЕРИНГ КОРЗИНЫ =====
         function renderCart() {
             const cart = CartManager.loadCart();
             const container = document.getElementById('cartContent');
             const authMessage = document.getElementById('authMessage');
             const loggedIn = isUserLoggedIn();
             
-            // Показываем или скрываем сообщение об авторизации
             if (authMessage) {
                 authMessage.style.display = loggedIn ? 'none' : 'block';
             }
@@ -245,7 +225,7 @@
                         </div>
                         <h2>Ваша корзина пуста</h2>
                         <p>Добавьте мебель из нашего каталога</p>
-                        <a href="products.html" class="continue-shopping-btn">
+                        <a href="/products" class="continue-shopping-btn">
                             <i class="fas fa-arrow-left"></i> Перейти в каталог
                         </a>
                     </div>
@@ -253,7 +233,6 @@
                 return;
             }
             
-            // Кнопка оформления заказа в зависимости от авторизации
             const checkoutButton = loggedIn 
                 ? `<button class="checkout-btn" onclick="openCheckoutModal()">
                        <i class="fas fa-credit-card"></i> Оформить заказ
@@ -264,7 +243,6 @@
             
             container.innerHTML = `
                 <div class="cart-content">
-                    <!-- Список товаров -->
                     <div class="cart-items">
                         ${cart.items.map(item => `
                             <div class="cart-item" data-id="${item.id}">
@@ -301,7 +279,6 @@
                         `).join('')}
                     </div>
                     
-                    <!-- Итоги и оформление -->
                     <div class="cart-sidebar">
                         <div class="cart-total-section">
                             <h2>Итоги заказа</h2>
@@ -318,7 +295,7 @@
                             
                             ${checkoutButton}
                             
-                            <a href="products.html" class="continue-shopping-btn" style="display: block; text-align: center; margin-top: 15px;">
+                            <a href="/products" class="continue-shopping-btn" style="display: block; text-align: center; margin-top: 15px;">
                                 <i class="fas fa-arrow-left"></i> Продолжить покупки
                             </a>
                         </div>
@@ -327,13 +304,11 @@
             `;
         }
 
-        // ===== ФУНКЦИИ УПРАВЛЕНИЯ КОРЗИНОЙ =====
         function changeQuantity(productId, newQuantity) {
             if (newQuantity < 1) {
                 removeFromCart(productId);
                 return;
             }
-            
             CartManager.updateQuantity(productId, newQuantity);
             renderCart();
         }
@@ -352,7 +327,6 @@
             }
         }
 
-        // ===== ОФОРМЛЕНИЕ ЗАКАЗА =====
         function openCheckoutModal() {
             if (!isUserLoggedIn()) {
                 alert('Для оформления заказа необходимо войти в систему');
@@ -374,7 +348,6 @@
             document.getElementById('checkoutForm').reset();
         }
 
-        // ===== УВЕДОМЛЕНИЯ =====
         function showNotification(message) {
             const notification = document.createElement('div');
             notification.innerHTML = `
@@ -398,15 +371,10 @@
             setTimeout(() => notification.remove(), 3000);
         }
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Обновляем счетчик корзины
             CartManager.updateCartCount(CartManager.loadCart());
-            
-            // Рендерим корзину
             renderCart();
             
-            // Обработка формы заказа
             document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
@@ -421,7 +389,6 @@
                 closeCheckoutModal();
             });
             
-            // Показываем/скрываем поле адреса
             document.getElementById('deliveryMethod')?.addEventListener('change', function() {
                 const addressField = document.getElementById('addressField');
                 if (addressField) {
@@ -429,7 +396,6 @@
                 }
             });
             
-            // Закрытие модального окна при клике вне его
             window.addEventListener('click', function(e) {
                 const modal = document.getElementById('checkoutModal');
                 if (e.target === modal) {
@@ -438,7 +404,6 @@
             });
         });
 
-        // Стили для модального окна
         const modalStyles = `
             .modal {
                 display: none;

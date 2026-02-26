@@ -1,9 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, Float, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
 Base = declarative_base()
-
 
 class User(Base):
     __tablename__ = "users"
@@ -11,10 +10,20 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    hashed_password = Column(String, nullable=False)  # переименовали!
-    full_name = Column(String, nullable=True)
-    phone = Column(String, nullable=True)
+    hashed_password = Column(String, nullable=False)
+    full_name = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
     created_at = Column(DateTime, default=func.now())
 
-    def __repr__(self):
-        return f"<User(id={self.id}, username='{self.username}')>"
+class Product(Base):
+    __tablename__ = "products"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    price = Column(Integer, nullable=False)  # в копейках/рублях
+    category = Column(String, nullable=False)  # sofas, beds, tables
+    image = Column(String, nullable=False)  # эмодзи или путь к картинке
+    specs = Column(Text, nullable=False)  # JSON с характеристиками
+    stock = Column(String, default="В наличии")
+    created_at = Column(DateTime, default=func.now())

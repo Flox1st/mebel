@@ -1,276 +1,246 @@
-from fastapi import FastAPI, Form, Request
+import sys
+import os
+import json
+from pathlib import Path
+
+# Добавляем путь к папке backend
+sys.path.append(os.path.dirname(__file__))
+
+from fastapi import FastAPI, Form, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
-import sqlite3
-import hashlib
-import os
-from pathlib import Path
+from sqlalchemy.orm import Session
+
+# Импорты без точек!
+import models
+import auth
+import database
 
 app = FastAPI()
 
 # Пути к фронтенду
-BASE_DIR = Path(__file__).resolve().parent.parent  # Папка Lab1
+BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 STATIC_DIR = FRONTEND_DIR
 
-# Подключаем статические файлы (CSS, JS, изображения)
+# Подключаем статические файлы
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Шаблонизатор для HTML
+# Шаблонизатор
 templates = Jinja2Templates(directory=str(FRONTEND_DIR))
 
+# Создаём таблицы
+models.Base.metadata.create_all(bind=database.engine)
 
-# ----------------- Простая база данных -----------------
+# Зависимость для БД
+def get_db():
+    db = database.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-def get_db_connection():
-    """Создает соединение с SQLite базой"""
-    db_path = BASE_DIR / "data" / "school.db"
-    # Создаем папку data если её нет
-    db_path.parent.mkdir(exist_ok=True)
-
-    conn = sqlite3.connect(str(db_path))
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def init_db():
-    """Инициализирует базу данных"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-
-    conn.commit()
-    conn.close()
-    print("✅ База данных инициализирована")
-
-
-# Инициализируем БД при старте
-init_db()
-
-
-# ----------------- API эндпоинты -----------------
+# ========== API ==========
 
 @app.post("/api/register")
 async def register(
-        username: str = Form(...),
-        email: str = Form(...),
-        password: str = Form(...)
+    username: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    full_name: str = Form(...),
+    phone: str = Form(...),
+    db: Session = Depends(get_db)
 ):
-    """Простая регистрация пользователя"""
-
-    # Хэшируем пароль
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    try:
-        cursor.execute(
-            "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
-            (username, email, hashed_password)
-        )
-        user_id = cursor.lastrowid
-        conn.commit()
-
-        return {
-            "success": True,
-            "message": "Регистрация успешна",
-            "user_id": user_id
-        }
-
-    except sqlite3.IntegrityError:
+    # Проверяем существование
+    existing = db.query(models.User).filter(
+        (models.User.username == username) | (models.User.email == email)
+    ).first()
+    
+    if existing:
         return JSONResponse(
             content={"success": False, "message": "Пользователь уже существует"},
             status_code=400
         )
-    finally:
-        conn.close()
+    
+    # Создаём пользователя
+    hashed = auth.get_password_hash(password)
+    user = models.User(
+        username=username,
+        email=email,
+        hashed_password=hashed,
+        full_name=full_name,
+        phone=phone
+    )
+    
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    
+    return {
+        "success": True,
+        "message": "Регистрация успешна",
+        "user_id": user.id
+    }
 
 
 @app.post("/api/login")
-async def login(request: Request):
-    """Простой вход пользователя"""
+async def login(
+    request: Request,
+    db: Session = Depends(get_db)
+):
     try:
-        print(f"=== DEBUG LOGIN REQUEST ===")
-        print(f"Headers: {dict(request.headers)}")
-        
-        content_type = request.headers.get('content-type', '')
-        print(f"Content-Type: {content_type}")
-        
-        username = None
-        password = None
-        
-        if 'multipart/form-data' in content_type:
-            print("Parsing multipart/form-data...")
-            form_data = await request.form()
-            print(f"Form data keys: {list(form_data.keys())}")
-            username = form_data.get("username")
-            password = form_data.get("password")
-            
-        elif 'application/x-www-form-urlencoded' in content_type:
-            print("Parsing x-www-form-urlencoded...")
-            form_data = await request.form()
-            username = form_data.get("username")
-            password = form_data.get("password")
-            
-        else:
-            print("Trying JSON...")
-            try:
-                json_data = await request.json()
-                username = json_data.get("username")
-                password = json_data.get("password")
-            except:
-                print("Failed to parse JSON")
-        
-        print(f"Extracted - username: '{username}', password: '{password}'")
-        print(f"Username type: {type(username)}, Password type: {type(password)}")
+        data = await request.form()
+        username = data.get("username")
+        password = data.get("password")
         
         if not username or not password:
-            print("ERROR: Empty fields!")
             return JSONResponse(
                 content={"success": False, "message": "Логин и пароль обязательны"},
                 status_code=400
             )
         
-        # Преобразуем в строку если это не строка
-        if not isinstance(username, str):
-            username = str(username)
-        if not isinstance(password, str):
-            password = str(password)
+        user = auth.authenticate_user(db, username, password)
         
-        # Хэшируем пароль
-        import hashlib
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
-        print(f"Hashed password: {hashed_password[:20]}...")
-        
-        # Ищем пользователя в БД
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
-        user = cursor.fetchone()
-        
-        if user:
-            print(f"User found: {user['username']}")
-            print(f"DB hash: {user['password'][:20]}...")
-            print(f"Input hash: {hashed_password[:20]}...")
-            print(f"Match: {user['password'] == hashed_password}")
-        
-        cursor.execute(
-            "SELECT * FROM users WHERE username = ? AND password = ?",
-            (username, hashed_password)
-        )
-        
-        user = cursor.fetchone()
-        conn.close()
-        
-        if user:
-            print("✅ Login successful!")
-            return {
-                "success": True,
-                "message": "Вход выполнен",
-                "user": {
-                    "id": user['id'],
-                    "username": user['username'],
-                    "email": user['email'],
-                    "created_at": user['created_at']
-                }
-            }
-        else:
-            print("❌ Login failed")
+        if not user:
             return JSONResponse(
                 content={"success": False, "message": "Неверный логин или пароль"},
                 status_code=401
             )
-            
+        
+        token = auth.create_access_token(data={"sub": user.username})
+        
+        return {
+            "success": True,
+            "message": "Вход выполнен",
+            "access_token": token,
+            "user": {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "full_name": user.full_name
+            }
+        }
+        
     except Exception as e:
-        print(f"Login error: {str(e)}")
-        import traceback
-        traceback.print_exc()
         return JSONResponse(
-            content={"success": False, "message": f"Ошибка сервера: {str(e)}"},
+            content={"success": False, "message": f"Ошибка: {str(e)}"},
             status_code=500
         )
 
-# ----------------- Обработка HTML страниц -----------------
 
-# Список существующих HTML файлов
-HTML_FILES = [
-    "index.html", "about.html", "contacts.html", "cart.html"
-]
+# ========== ТОВАРЫ ==========
 
+@app.get("/api/products")
+async def get_products(
+    category: str = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Product)
+    if category and category != "all":
+        query = query.filter(models.Product.category == category)
+    
+    products = query.all()
+    
+    result = []
+    for p in products:
+        result.append({
+            "id": p.id,
+            "name": p.name,
+            "description": p.description,
+            "price": p.price,
+            "category": p.category,
+            "image": p.image,
+            "specs": json.loads(p.specs) if p.specs else {},
+            "stock": p.stock
+        })
+    
+    return {"products": result}
+
+
+@app.get("/api/products/{product_id}")
+async def get_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    
+    if not product:
+        return JSONResponse(
+            content={"success": False, "message": "Товар не найден"},
+            status_code=404
+        )
+    
+    return {
+        "id": product.id,
+        "name": product.name,
+        "description": product.description,
+        "price": product.price,
+        "category": product.category,
+        "image": product.image,
+        "specs": json.loads(product.specs) if product.specs else {},
+        "stock": product.stock
+    }
+
+
+# ========== СТРАНИЦЫ ==========
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
-    """Главная страница"""
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@app.get("/auth", response_class=HTMLResponse)
-async def serve_auth(request: Request):
-    """Страница авторизации"""
-    return templates.TemplateResponse("auth.html", {"request": request})
-
-@app.get("/register")
-async def serve_register():
-    """Страница регистрации"""
-    register_path = FRONTEND_DIR / "register.html"
-    if register_path.exists():
-        return FileResponse(str(register_path))
-    return FileResponse(str(FRONTEND_DIR / "index.html"))
+@app.get("/products", response_class=HTMLResponse)
+async def serve_products(request: Request):
+    return templates.TemplateResponse("products.html", {"request": request})
 
 
-# Динамические маршруты для всех остальных страниц
-@app.get("/{page_name}", response_class=HTMLResponse)
-async def serve_page(request: Request, page_name: str):
-    """Обработка всех остальных страниц"""
-    # Проверяем существование файла
-    file_path = FRONTEND_DIR / f"{page_name}.html"
+@app.get("/product/{product_id}", response_class=HTMLResponse)
+async def serve_product(request: Request, product_id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    
+    if not product:
+        return templates.TemplateResponse("index.html", {"request": request})
+    
+    # Подготовка данных для шаблона
+    product_data = {
+        "id": product.id,
+        "name": product.name,
+        "description": product.description,
+        "price": product.price,
+        "category": product.category,
+        "image": product.image,
+        "image_url": product.image_url if hasattr(product, 'image_url') else None,
+        "specs": json.loads(product.specs) if product.specs else {},
+        "stock": product.stock
+    }
+    
+    return templates.TemplateResponse(
+        "product_template.html", 
+        {
+            "request": request,
+            "product": product_data
+        }
+    )
 
-    if file_path.exists():
-        return templates.TemplateResponse(f"{page_name}.html", {"request": request})
 
-    # Если файл не найден, пробуем без расширения .html
-    file_path_no_ext = FRONTEND_DIR / page_name
-    if file_path_no_ext.exists() and file_path_no_ext.suffix == '.html':
-        return templates.TemplateResponse(page_name, {"request": request})
-
-    # Если страница не найдена - возвращаем 404 или главную
-    return templates.TemplateResponse("index.html", {"request": request})
+@app.get("/register", response_class=HTMLResponse)
+async def serve_register(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
 
 
-# ----------------- Дополнительные маршруты -----------------
+@app.get("/cart", response_class=HTMLResponse)
+async def serve_cart(request: Request):
+    return templates.TemplateResponse("cart.html", {"request": request})
+
+
+@app.get("/about", response_class=HTMLResponse)
+async def serve_about(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request})
+
+
+@app.get("/contacts", response_class=HTMLResponse)
+async def serve_contacts(request: Request):
+    return templates.TemplateResponse("contacts.html", {"request": request})
+
 
 @app.get("/api/health")
 async def health_check():
-    """Проверка работы API"""
     return {"status": "ok", "message": "API работает"}
-
-
-@app.get("/api/users")
-async def get_all_users():
-    """Получить всех пользователей (для отладки)"""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT id, username, email, created_at FROM users")
-    users = cursor.fetchall()
-    conn.close()
-
-    return {"users": [dict(user) for user in users]}
-
-
-# Обработчик для favicon.ico (чтобы не было ошибок 404)
-@app.get("/favicon.ico")
-async def favicon():
-    return FileResponse(FRONTEND_DIR / "favicon.ico" if (FRONTEND_DIR / "favicon.ico").exists() else None)
