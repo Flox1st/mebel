@@ -7,7 +7,7 @@ import os
 os.makedirs("../data", exist_ok=True)
 
 # SQLite база данных (путь относительно backend/)
-SQLALCHEMY_DATABASE_URL = "sqlite:///../data/school.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./data/school.db"
 
 # Создаем движок
 engine = create_engine(

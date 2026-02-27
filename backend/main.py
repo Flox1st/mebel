@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 
 # Импорты без точек!
 import models
@@ -42,6 +43,76 @@ def get_db():
         db.close()
 
 # ========== API ==========
+class ReviewCreate(BaseModel):
+    product_id: int
+    rating: int
+    text: str
+
+# ========== API ДЛЯ ОТЗЫВОВ ==========
+
+@app.post("/api/reviews")
+async def create_review(
+    review: ReviewCreate,
+    db: Session = Depends(get_db)
+):
+    """Создать новый отзыв (без авторизации)"""
+    try:
+        # Проверяем, существует ли товар
+        product = db.query(models.Product).filter(models.Product.id == review.product_id).first()
+        if not product:
+            return JSONResponse(
+                content={"success": False, "message": "Товар не найден"},
+                status_code=404
+            )
+        
+        # Создаём отзыв с user_id = 1 (или можно сделать отдельную таблицу для гостей)
+        # Для простоты используем user_id = 1 (первый пользователь)
+        db_review = models.Review(
+            user_id=1,  # Временно привязываем к первому пользователю
+            product_id=review.product_id,
+            rating=review.rating,
+            text=review.text
+        )
+        
+        db.add(db_review)
+        db.commit()
+        db.refresh(db_review)
+        
+        return {
+            "success": True,
+            "message": "Отзыв добавлен",
+            "review_id": db_review.id
+        }
+        
+    except Exception as e:
+        print(f"❌ Ошибка создания отзыва: {e}")
+        return JSONResponse(
+            content={"success": False, "message": f"Ошибка сервера: {str(e)}"},
+            status_code=500
+        )
+
+
+@app.get("/api/products/{product_id}/reviews")
+async def get_product_reviews(
+    product_id: int,
+    db: Session = Depends(get_db)
+):
+    """Получить все отзывы для товара"""
+    reviews = db.query(models.Review).filter(
+        models.Review.product_id == product_id
+    ).order_by(models.Review.created_at.desc()).all()
+    
+    result = []
+    for r in reviews:
+        result.append({
+            "id": r.id,
+            "user_name": r.user.full_name if r.user else "Пользователь",
+            "rating": r.rating,
+            "text": r.text,
+            "created_at": r.created_at.strftime("%d.%m.%Y")
+        })
+    
+    return {"reviews": result}
 
 @app.post("/api/register")
 async def register(
@@ -52,37 +123,56 @@ async def register(
     phone: str = Form(...),
     db: Session = Depends(get_db)
 ):
-    # Проверяем существование
-    existing = db.query(models.User).filter(
-        (models.User.username == username) | (models.User.email == email)
-    ).first()
-    
-    if existing:
-        return JSONResponse(
-            content={"success": False, "message": "Пользователь уже существует"},
-            status_code=400
+    try:
+        # Проверяем, что все поля заполнены
+        if not username or not email or not password or not full_name or not phone:
+            return JSONResponse(
+                content={"success": False, "message": "Все поля обязательны"},
+                status_code=400
+            )
+        
+        # Проверяем, существует ли пользователь
+        existing = db.query(models.User).filter(
+            (models.User.username == username) | (models.User.email == email)
+        ).first()
+        
+        if existing:
+            return JSONResponse(
+                content={"success": False, "message": "Пользователь уже существует"},
+                status_code=400
+            )
+        
+        # Создаём пользователя
+        hashed = auth.get_password_hash(password)
+        
+        # Убедись, что в models.User есть все эти поля!
+        user = models.User(
+            username=username,
+            email=email,
+            hashed_password=hashed,
+            full_name=full_name,
+            phone=phone
         )
-    
-    # Создаём пользователя
-    hashed = auth.get_password_hash(password)
-    user = models.User(
-        username=username,
-        email=email,
-        hashed_password=hashed,
-        full_name=full_name,
-        phone=phone
-    )
-    
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    
-    return {
-        "success": True,
-        "message": "Регистрация успешна",
-        "user_id": user.id
-    }
-
+        
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        
+        return {
+            "success": True,
+            "message": "Регистрация успешна",
+            "user_id": user.id
+        }
+        
+    except Exception as e:
+        print(f"❌ Ошибка регистрации: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        
+        return JSONResponse(
+            content={"success": False, "message": f"Ошибка сервера: {str(e)}"},
+            status_code=500
+        )
 
 @app.post("/api/login")
 async def login(

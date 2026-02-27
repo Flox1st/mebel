@@ -30,8 +30,10 @@
             min-height: 400px;
         }
         
-        .product-gallery span {
-            font-size: 8em;
+        .product-gallery img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
         }
         
         .product-info {
@@ -243,7 +245,6 @@
         <div class="breadcrumbs">
             <a href="/">Главная</a> > 
             <a href="/products">Каталог</a> > 
-            <a href="/products?category={{ product.category }}">{{ product.category|capitalize }}</a> > 
             <span>{{ product.name }}</span>
         </div>
 
@@ -251,33 +252,35 @@
             <i class="fas fa-arrow-left"></i> Вернуться в каталог
         </a>
 
-       <div class="product-gallery">
-            <script>
-                const imageMap = {
-                    1: '/static/images/products/divan1.jpg',
-                    2: '/static/images/products/divan2.jpg',
-                    3: '/static/images/products/divan3.jpg',
-                    4: '/static/images/products/divan4.jpg',
-                    5: '/static/images/products/krovat1.jpg',
-                    6: '/static/images/products/krovat2.jpg',
-                    7: '/static/images/products/krovat3.jpg',
-                    8: '/static/images/products/krovat4.jpg',
-                    9: '/static/images/products/stol1.jpg',
-                    10: '/static/images/products/stol2.jpg',
-                    11: '/static/images/products/stol3.jpg',
-                    12: '/static/images/products/stol4.jpg'
-                };
-                
-                const productId = {{ product.id }};
-                const imagePath = imageMap[productId];
-                
-                if (imagePath) {
-                    document.write(`<img src="${imagePath}" alt="{{ product.name }}" style="max-width: 100%; max-height: 400px; object-fit: contain;">`);
-                } else {
-                    document.write(`<span style="font-size: 8em;">{{ product.image }}</span>`);
-                }
-            </script>
-        </div>
+        <div class="product-layout">
+            <div class="product-gallery">
+                <script>
+                    // Используем let вместо const и другое имя, чтобы не конфликтовать
+                    let productImageMap = {
+                        1: '/static/images/products/divan1.jpg',
+                        2: '/static/images/products/divan2.jpg',
+                        3: '/static/images/products/divan3.jpg',
+                        4: '/static/images/products/divan4.jpg',
+                        5: '/static/images/products/krovat1.jpg',
+                        6: '/static/images/products/krovat2.jpg',
+                        7: '/static/images/products/krovat3.jpg',
+                        8: '/static/images/products/krovat4.jpg',
+                        9: '/static/images/products/stol1.jpg',
+                        10: '/static/images/products/stol2.jpg',
+                        11: '/static/images/products/stol3.jpg',
+                        12: '/static/images/products/stol4.jpg'
+                    };
+                    
+                    let currentProductId = {{ product.id }};
+                    let imagePath = productImageMap[currentProductId];
+                    
+                    if (imagePath) {
+                        document.write(`<img src="${imagePath}" alt="{{ product.name }}" style="max-width: 100%; max-height: 400px; object-fit: contain;">`);
+                    } else {
+                        document.write(`<span style="font-size: 8em;">{{ product.image }}</span>`);
+                    }
+                </script>
+            </div>
 
             <div class="product-info">
                 <h1>{{ product.name }}</h1>
@@ -320,26 +323,17 @@
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 10px; font-weight: bold;">Ваша оценка:</label>
                         <div style="display: flex; gap: 10px;">
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="rating" value="1" style="display: none;">
-                                <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
-                            </label>
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="rating" value="2" style="display: none;">
-                                <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
-                            </label>
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="rating" value="3" style="display: none;">
-                                <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
-                            </label>
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="rating" value="4" style="display: none;">
-                                <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
-                            </label>
-                            <label style="cursor: pointer;">
-                                <input type="radio" name="rating" value="5" style="display: none;">
-                                <span class="rating-star" style="font-size: 2em; color: #ccc;">★</span>
-                            </label>
+                            <input type="radio" name="rating" id="rating-1" value="1" style="display: none;">
+                            <input type="radio" name="rating" id="rating-2" value="2" style="display: none;">
+                            <input type="radio" name="rating" id="rating-3" value="3" style="display: none;">
+                            <input type="radio" name="rating" id="rating-4" value="4" style="display: none;">
+                            <input type="radio" name="rating" id="rating-5" value="5" style="display: none;">
+                            
+                            <span class="rating-star" data-rating="1" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
+                            <span class="rating-star" data-rating="2" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
+                            <span class="rating-star" data-rating="3" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
+                            <span class="rating-star" data-rating="4" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
+                            <span class="rating-star" data-rating="5" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
                         </div>
                     </div>
                     
@@ -372,140 +366,183 @@
 
     <script src="/static/auth.js"></script>
     <script>
-        // ID текущего товара
+        // Объявляем productId только один раз, в глобальной области
         const productId = {{ product.id }};
         
-        // Ключ для хранения отзывов
-        const STORAGE_KEY = 'reviews_product_' + productId;
+        // ===== ЗАГРУЗКА ОТЗЫВОВ =====
+        async function loadReviews() {
+            try {
+                const container = document.getElementById('reviewsContainer');
+                const counter = document.getElementById('reviewsCount');
+                
+                if (!container) {
+                    console.error('❌ Элемент reviewsContainer не найден!');
+                    return;
+                }
+                
+                const response = await fetch(`/api/products/${productId}/reviews`);
+                const data = await response.json();
+                
+                if (counter) {
+                    counter.textContent = data.reviews.length;
+                }
+                
+                if (!data.reviews || data.reviews.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 40px; color: var(--gray-dark);">
+                            <i class="fas fa-comment" style="font-size: 3em; margin-bottom: 15px; opacity: 0.3;"></i>
+                            <p>Пока нет отзывов. Будьте первым!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let html = '';
+                data.reviews.forEach(review => {
+                    let stars = '';
+                    for (let i = 1; i <= 5; i++) {
+                        stars += i <= review.rating 
+                            ? '<i class="fas fa-star" style="color: gold;"></i>'
+                            : '<i class="far fa-star" style="color: #ccc;"></i>';
+                    }
+                    
+                    html += `
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="review-author">
+                                    <i class="fas fa-user-circle"></i> ${review.user_name}
+                                </span>
+                                <span class="review-date">${review.created_at}</span>
+                            </div>
+                            <div class="review-rating">${stars}</div>
+                            <div class="review-text">${review.text}</div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Ошибка загрузки отзывов:', error);
+            }
+        }
 
-        // Функция добавления в корзину
+        // ===== ДОБАВЛЕНИЕ ОТЗЫВА =====
+        document.getElementById('reviewForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const rating = document.querySelector('input[name="rating"]:checked')?.value;
+            const text = document.getElementById('reviewText').value.trim();
+            
+            if (!rating) {
+                alert('Поставьте оценку');
+                return;
+            }
+            if (!text || text.length < 5) {
+                alert('Напишите отзыв (минимум 5 символов)');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        rating: parseInt(rating),
+                        text: text,
+                        user_name: "Гость" // Добавляем имя пользователя
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ Спасибо! Отзыв добавлен');
+                    document.getElementById('reviewText').value = '';
+                    
+                    // Снимаем выделение со звёздочек
+                    document.querySelectorAll('input[name="rating"]').forEach(r => r.checked = false);
+                    document.querySelectorAll('.rating-star').forEach(s => s.style.color = '#ccc');
+                    
+                    loadReviews(); // Перезагружаем отзывы
+                } else {
+                    alert('❌ ' + result.message);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка при отправке отзыва');
+            }
+        });
+
+        // ===== ЗВЁЗДОЧКИ (рабочие) =====
+        document.querySelectorAll('.rating-star').forEach((star, index) => {
+            star.addEventListener('click', function() {
+                const rating = this.dataset.rating;
+                
+                // Снимаем выделение со всех звёзд
+                document.querySelectorAll('.rating-star').forEach(s => {
+                    s.style.color = '#ccc';
+                });
+                
+                // Выделяем звёзды до текущей включительно
+                for (let i = 0; i <= index; i++) {
+                    document.querySelectorAll('.rating-star')[i].style.color = 'gold';
+                }
+                
+                // Отмечаем соответствующую радио-кнопку
+                document.getElementById(`rating-${rating}`).checked = true;
+            });
+        });
+
+        // ===== КОРЗИНА =====
         function addToCart(id, name, price, image) {
             let cart = JSON.parse(localStorage.getItem('furnitureCart'));
-            if (!cart) cart = { items: [], count: 0, total: 0 };
+            if (!cart) {
+                cart = { items: [], count: 0, total: 0 };
+            }
             
             const existingItem = cart.items.find(item => item.id === id);
             if (existingItem) {
                 existingItem.quantity = (existingItem.quantity || 1) + 1;
             } else {
-                cart.items.push({ id, name, price, image, quantity: 1 });
+                cart.items.push({ 
+                    id: id, 
+                    name: name, 
+                    price: price, 
+                    image: image, 
+                    quantity: 1 
+                });
             }
             
             cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
             cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
             
             localStorage.setItem('furnitureCart', JSON.stringify(cart));
-            document.getElementById('cartCount').textContent = cart.count;
+            
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                cartCount.textContent = cart.count;
+            }
+            
             alert(`✅ "${name}" добавлен в корзину!`);
         }
 
-        // Система отзывов (как в прошлый раз)
-        function getCurrentUserName() {
-            const userStr = localStorage.getItem('currentUser');
-            if (userStr) {
-                try {
-                    const user = JSON.parse(userStr);
-                    return user.full_name || user.username || 'Пользователь';
-                } catch (e) {
-                    return 'Гость';
-                }
-            }
-            return 'Гость';
-        }
-
-        function loadReviews() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            return saved ? JSON.parse(saved) : [];
-        }
-
-        function saveReviews(reviews) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews));
-        }
-
-        function renderReviews() {
-            const reviews = loadReviews();
-            const container = document.getElementById('reviewsContainer');
-            const counter = document.getElementById('reviewsCount');
-            
-            if (counter) counter.textContent = reviews.length;
-            
-            if (reviews.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: var(--gray-dark);">
-                        <i class="fas fa-comment" style="font-size: 3em; margin-bottom: 15px; opacity: 0.3;"></i>
-                        <p>Пока нет отзывов. Будьте первым!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            reviews.sort((a, b) => b.id - a.id);
-            
-            let html = '';
-            reviews.forEach(review => {
-                let stars = '';
-                for (let i = 1; i <= 5; i++) {
-                    stars += i <= review.rating 
-                        ? '<i class="fas fa-star" style="color: gold;"></i>'
-                        : '<i class="far fa-star" style="color: #ccc;"></i>';
-                }
-                
-                html += `
-                    <div class="review-card">
-                        <div class="review-header">
-                            <span class="review-author">
-                                <i class="fas fa-user-circle"></i> ${review.author}
-                            </span>
-                            <span class="review-date">${review.date}</span>
-                        </div>
-                        <div class="review-rating">${stars}</div>
-                        <div class="review-text">${review.text}</div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-
-        document.getElementById('reviewForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const isLoggedIn = localStorage.getItem('authToken') !== null;
-            if (!isLoggedIn) {
-                alert('⚠️ Чтобы оставить отзыв, необходимо войти в систему');
-                window.location.href = '/';
-                return;
-            }
-            
-            const rating = document.querySelector('input[name="rating"]:checked')?.value;
-            const text = document.getElementById('reviewText').value.trim();
-            
-            if (!rating) return alert('Поставьте оценку');
-            if (!text || text.length < 10) return alert('Отзыв должен быть не менее 10 символов');
-            
-            const reviews = loadReviews();
-            reviews.unshift({
-                id: Date.now(),
-                author: getCurrentUserName(),
-                date: new Date().toLocaleDateString('ru-RU'),
-                rating: parseInt(rating),
-                text: text
-            });
-            
-            saveReviews(reviews);
-            renderReviews();
-            
-            document.getElementById('reviewText').value = '';
-            document.querySelector('input[name="rating"]:checked').checked = false;
-            alert('✅ Спасибо! Отзыв добавлен');
-        });
-
+        // ===== ЗАГРУЗКА ПРИ СТАРТЕ =====
         document.addEventListener('DOMContentLoaded', function() {
-            renderReviews();
+            console.log('Страница товара загружена, productId =', productId);
+            loadReviews();
             
             const savedCart = localStorage.getItem('furnitureCart');
             if (savedCart) {
                 const cart = JSON.parse(savedCart);
-                document.getElementById('cartCount').textContent = cart.count || 0;
+                const cartCount = document.getElementById('cartCount');
+                if (cartCount) {
+                    cartCount.textContent = cart.count || 0;
+                }
             }
         });
     </script>
