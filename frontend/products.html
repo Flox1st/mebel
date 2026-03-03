@@ -62,12 +62,15 @@
             </div>
 
             <div class="products-filters">
+                <!-- Первая строка - поиск -->
                 <div class="filter-row">
                     <div class="filter-group search-group" style="flex: 2;">
                         <label for="searchInput"><i class="fas fa-search"></i> Поиск:</label>
                         <input type="text" id="searchInput" class="filter-select" placeholder="Введите название товара..." style="width: 100%;">
                     </div>
                 </div>
+                
+                <!-- Вторая строка - категория и сортировка -->
                 <div class="filter-row">
                     <div class="filter-group">
                         <label for="categoryFilter">Категория:</label>
@@ -87,9 +90,13 @@
                             <option value="name">По названию</option>
                         </select>
                     </div>
-                    <div class="filter-group">
-                        <button id="resetFiltersBtn" class="btn btn-outline" style="padding: 10px 20px;">
-                            <i class="fas fa-undo"></i> Сбросить
+                </div>
+                
+                <!-- Третья строка - кнопка сброса (отдельно, по центру) -->
+                <div class="filter-row" style="justify-content: center; margin-top: 15px;">
+                    <div class="filter-group" style="text-align: center;">
+                        <button id="resetFiltersBtn" class="btn btn-outline" style="padding: 10px 30px;">
+                            <i class="fas fa-undo"></i> Сбросить все фильтры
                         </button>
                     </div>
                 </div>
