@@ -34,11 +34,4 @@ print("\n👥 Пользователи:")
 cursor.execute("SELECT id, username, email, created_at FROM users")
 users = cursor.fetchall()
 
-if users:
-    for user in users:
-        print(f"  ID: {user[0]}, Логин: {user[1]}, Email: {user[2]}, Создан: {user[3]}")
-    print(f"\nВсего пользователей: {len(users)}")
-else:
-    print("  Пользователей пока нет")
-
 conn.close()

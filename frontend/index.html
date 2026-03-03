@@ -57,49 +57,14 @@
         </div>
     </nav>
 
-    <!-- Карусель -->
     <section class="carousel-section">
         <div class="carousel-container">
             <div class="carousel-counter">
-                <span id="currentSlide">1</span> / <span id="totalSlides">4</span>
+                <span id="currentSlide">1</span> / <span id="totalSlides">0</span>
             </div>
             
             <div class="carousel-slides" id="carouselSlides">
-                 <!-- Слайд 1 -->
-                <div class="carousel-slide active">
-                    <img src="https://sola-m.ru/wp-content/uploads/2023/02/divan-krovat-soft-v-interere-1.jpg" alt="Мягкая мебель" class="carousel-image">
-                    <div class="carousel-caption">
-                        <h3>Мягкая мебель</h3>
-                        <p>Диваны и кресла для уютного отдыха</p>
-                    </div>
-                </div>
-
-                <!-- Слайд 2 -->
-                <div class="carousel-slide">
-                    <img src="https://son.ru/uploads/publication/F6rNRZ9NO92sigOGmfozb81XbEp-EB0L.jpg" alt="Спальни" class="carousel-image">
-                    <div class="carousel-caption">
-                        <h3>Спальни</h3>
-                        <p>Кровати, шкафы и комоды для вашей спальни</p>
-                    </div>
-                </div>
-
-                <!-- Слайд 3 -->
-                <div class="carousel-slide">
-                    <img src="https://img.spim.ru/i/tile/h_mid4x/img.mebhome.ru/stolline/stolline_626193.jpg" alt="Кухонная мебель" class="carousel-image">
-                    <div class="carousel-caption">
-                        <h3>Кухонная мебель</h3>
-                        <p>Столы, стулья и кухонные гарнитуры</p>
-                    </div>
-                </div>
-
-                <!-- Слайд 4 -->
-                <div class="carousel-slide">
-                    <img src="https://studio-mint.ru/sites/default/files/sites/default/files/imce/foto2.jpg" alt="Прихожие" class="carousel-image">
-                    <div class="carousel-caption">
-                        <h3>Прихожие</h3>
-                        <p>Шкафы, вешалки и тумбы для прихожей</p>
-                    </div>
-                </div>
+                <!-- Слайды будут загружены через JavaScript -->
             </div>
             
             <button class="carousel-btn prev" onclick="prevSlide()">‹</button>
@@ -363,6 +328,151 @@
                 document.getElementById('cartCount').textContent = cart.count || 0;
             }
         });
+
+        async function loadCarousel() {
+    try {
+        const response = await fetch('/api/carousel');
+        const data = await response.json();
+        
+        const slidesContainer = document.getElementById('carouselSlides');
+        const indicatorsContainer = document.getElementById('carouselIndicators');
+        
+        if (!data.slides || data.slides.length === 0) {
+            slidesContainer.innerHTML = '<div class="carousel-slide active">Нет слайдов</div>';
+            return;
+        }
+        
+        // Очищаем контейнеры
+        slidesContainer.innerHTML = '';
+        indicatorsContainer.innerHTML = '';
+        
+        // Создаём слайды
+        data.slides.forEach((slide, index) => {
+            // Слайд
+            const slideDiv = document.createElement('div');
+            slideDiv.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
+            
+            let linkContent = '';
+            if (slide.link) {
+                linkContent = `<a href="${slide.link}">`;
+            }
+            
+            slideDiv.innerHTML = `
+                ${linkContent ? linkContent : ''}
+                    <img src="${slide.image_url}" alt="${slide.title}" class="carousel-image" 
+                         onerror="this.src='https://via.placeholder.com/1200x400?text=${slide.title}'">
+                    <div class="carousel-caption">
+                        <h3>${slide.title}</h3>
+                        <p>${slide.subtitle || ''}</p>
+                    </div>
+                ${linkContent ? '</a>' : ''}
+            `;
+            
+            slidesContainer.appendChild(slideDiv);
+            
+            // Индикатор
+            const indicator = document.createElement('div');
+            indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
+            indicator.dataset.index = index;
+            indicator.onclick = () => goToSlide(index);
+            indicatorsContainer.appendChild(indicator);
+        });
+        
+        // Обновляем счётчик
+        document.getElementById('totalSlides').textContent = data.slides.length;
+        
+        // Инициализируем карусель
+        initCarousel(data.slides.length);
+        
+    } catch (error) {
+        console.error('Ошибка загрузки карусели:', error);
+    }
+}
+
+    // ===== УПРАВЛЕНИЕ КАРУСЕЛЬЮ =====
+    let currentSlide = 0;
+    let totalSlides = 0;
+    let autoPlayInterval;
+
+    function initCarousel(slideCount) {
+        totalSlides = slideCount;
+        currentSlide = 0;
+        
+        // Запускаем автопрокрутку
+        startAutoPlay();
+    }
+
+    function showSlide(index) {
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.carousel-indicator');
+        
+        if (!slides.length) return;
+        
+        // Нормализуем индекс
+        if (index < 0) index = totalSlides - 1;
+        if (index >= totalSlides) index = 0;
+        
+        // Скрываем все слайды
+        slides.forEach(slide => slide.classList.remove('active'));
+        
+        // Показываем нужный
+        slides[index].classList.add('active');
+        
+        // Обновляем индикаторы
+        indicators.forEach((ind, i) => {
+            ind.classList.toggle('active', i === index);
+        });
+        
+        // Обновляем счётчик
+        document.getElementById('currentSlide').textContent = index + 1;
+        
+        currentSlide = index;
+    }
+
+    function nextSlide() {
+        showSlide(currentSlide + 1);
+        restartAutoPlay();
+    }
+
+    function prevSlide() {
+        showSlide(currentSlide - 1);
+        restartAutoPlay();
+    }
+
+    function goToSlide(index) {
+        showSlide(index);
+        restartAutoPlay();
+    }
+
+    function startAutoPlay() {
+        if (autoPlayInterval) clearInterval(autoPlayInterval);
+        autoPlayInterval = setInterval(() => {
+            nextSlide();
+        }, 5000);
+    }
+
+    function restartAutoPlay() {
+        if (autoPlayInterval) {
+            clearInterval(autoPlayInterval);
+            startAutoPlay();
+        }
+    }
+
+    // Загружаем карусель при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCarousel();
+        
+        // Обработчики для паузы при наведении
+        const carousel = document.querySelector('.carousel-container');
+        if (carousel) {
+            carousel.addEventListener('mouseenter', () => {
+                if (autoPlayInterval) clearInterval(autoPlayInterval);
+            });
+            carousel.addEventListener('mouseleave', () => {
+                startAutoPlay();
+            });
+        }
+    });
     </script>
 </body>
 </html>

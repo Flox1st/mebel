@@ -218,6 +218,25 @@ async def login(
             status_code=500
         )
 
+@app.get("/api/carousel")
+async def get_carousel(db: Session = Depends(get_db)):
+    """Получить все активные слайды карусели"""
+    slides = db.query(models.Carousel).filter(
+        models.Carousel.is_active == 1
+    ).order_by(models.Carousel.order).all()
+    
+    result = []
+    for slide in slides:
+        result.append({
+            "id": slide.id,
+            "title": slide.title,
+            "subtitle": slide.subtitle,
+            "image_url": slide.image_url,
+            "link": slide.link
+        })
+    
+    return {"slides": result}
+
 
 # ========== ТОВАРЫ ==========
 

@@ -48,3 +48,16 @@ class Review(Base):
     # Связи
     user = relationship("User", back_populates="reviews")
     product = relationship("Product", back_populates="reviews")
+
+    
+class Carousel(Base):
+    __tablename__ = "carousel"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)  # Заголовок слайда
+    subtitle = Column(String, nullable=True)  # Подзаголовок
+    image_url = Column(String, nullable=False)  # Путь к картинке
+    link = Column(String, nullable=True)  # Ссылка (если есть)
+    order = Column(Integer, default=0)  # Порядок отображения
+    is_active = Column(Integer, default=1)  # Активен ли слайд
+    created_at = Column(DateTime, default=func.now())
