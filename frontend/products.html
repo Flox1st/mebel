@@ -47,8 +47,8 @@
 
     <nav class="main-nav">
         <div class="nav-container">
-            <a href="/" class="nav-link active">Главная</a>
-            <a href="/products" class="nav-link">Каталог</a>
+            <a href="/" class="nav-link">Главная</a>
+            <a href="/products" class="nav-link active">Каталог</a>
             <a href="/about" class="nav-link">О нас</a>
             <a href="/contacts" class="nav-link">Контакты</a>
         </div>
@@ -63,9 +63,9 @@
 
             <div class="products-filters">
                 <div class="filter-row">
-                    <div class="filter-group search-group">
+                    <div class="filter-group search-group" style="flex: 2;">
                         <label for="searchInput"><i class="fas fa-search"></i> Поиск:</label>
-                        <input type="text" id="searchInput" class="filter-select" placeholder="Введите название товара..." style="width: 300px;">
+                        <input type="text" id="searchInput" class="filter-select" placeholder="Введите название товара..." style="width: 100%;">
                     </div>
                 </div>
                 <div class="filter-row">
@@ -81,14 +81,15 @@
                     <div class="filter-group">
                         <label for="sortFilter">Сортировка:</label>
                         <select id="sortFilter" class="filter-select">
-                            <option value="popular">По популярности</option>
+                            <option value="default">По умолчанию</option>
                             <option value="price-asc">По возрастанию цены</option>
                             <option value="price-desc">По убыванию цены</option>
+                            <option value="name">По названию</option>
                         </select>
                     </div>
                     <div class="filter-group">
-                        <button id="resetFiltersBtn" class="reset-filters-btn">
-                            <i class="fas fa-undo"></i> Сбросить фильтры
+                        <button id="resetFiltersBtn" class="btn btn-outline" style="padding: 10px 20px;">
+                            <i class="fas fa-undo"></i> Сбросить
                         </button>
                     </div>
                 </div>
@@ -110,90 +111,117 @@
     </footer>
 
     <script src="/static/auth.js"></script>
-<script>
-    // ===== ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПУТИ К КАРТИНКЕ =====
-    function getProductImagePath(productId, defaultImage) {
-        const imageMap = {
-            1: '/static/images/products/divan1.jpg',
-            2: '/static/images/products/divan2.jpg',
-            3: '/static/images/products/divan3.jpg',
-            4: '/static/images/products/divan4.jpg',
-            5: '/static/images/products/krovat1.jpg',
-            6: '/static/images/products/krovat2.jpg',
-            7: '/static/images/products/krovat3.jpg',
-            8: '/static/images/products/krovat4.jpg',
-            9: '/static/images/products/stol1.jpg',
-            10: '/static/images/products/stol2.jpg',
-            11: '/static/images/products/stol3.jpg',
-            12: '/static/images/products/stol4.jpg'
-        };
+    <script>
+        // ===== ХРАНИЛИЩЕ ТОВАРОВ =====
+        let allProducts = []; // Сюда сохраним все товары при загрузке
         
-        return imageMap[productId] || defaultImage || 'https://picsum.photos/200/200?random=' + productId;
-    }
-
-    // ===== ФУНКЦИЯ ДЛЯ НАЗВАНИЙ КАТЕГОРИЙ =====
-    function getCategoryName(category) {
-        const categories = {
-            'sofas': 'Диваны',
-            'beds': 'Кровати',
-            'tables': 'Столы'
-        };
-        return categories[category] || category;
-    }
-
-    // ===== ФУНКЦИЯ ДОБАВЛЕНИЯ В КОРЗИНУ =====
-    function addToCart(id, name, price, image) {
-        let cart = JSON.parse(localStorage.getItem('furnitureCart'));
-        if (!cart) {
-            cart = { items: [], count: 0, total: 0 };
+        // ===== ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПУТИ К КАРТИНКЕ =====
+        function getProductImagePath(productId, defaultImage) {
+            const imageMap = {
+                1: '/static/images/products/divan1.jpg',
+                2: '/static/images/products/divan2.jpg',
+                3: '/static/images/products/divan3.jpg',
+                4: '/static/images/products/divan4.jpg',
+                5: '/static/images/products/krovat1.jpg',
+                6: '/static/images/products/krovat2.jpg',
+                7: '/static/images/products/krovat3.jpg',
+                8: '/static/images/products/krovat4.jpg',
+                9: '/static/images/products/stol1.jpg',
+                10: '/static/images/products/stol2.jpg',
+                11: '/static/images/products/stol3.jpg',
+                12: '/static/images/products/stol4.jpg'
+            };
+            
+            return imageMap[productId] || defaultImage || 'https://picsum.photos/200/200?random=' + productId;
         }
-        
-        const existingItem = cart.items.find(item => item.id === id);
-        if (existingItem) {
-            existingItem.quantity = (existingItem.quantity || 1) + 1;
-        } else {
-            cart.items.push({ 
-                id: id, 
-                name: name, 
-                price: price, 
-                image: image, 
-                quantity: 1 
+
+        // ===== ФУНКЦИЯ ДЛЯ НАЗВАНИЙ КАТЕГОРИЙ =====
+        function getCategoryName(category) {
+            const categories = {
+                'sofas': 'Диваны',
+                'beds': 'Кровати',
+                'tables': 'Столы'
+            };
+            return categories[category] || category;
+        }
+
+        // ===== ФУНКЦИЯ ДОБАВЛЕНИЯ В КОРЗИНУ =====
+        function addToCart(id, name, price, image) {
+            let cart = JSON.parse(localStorage.getItem('furnitureCart'));
+            if (!cart) {
+                cart = { items: [], count: 0, total: 0 };
+            }
+            
+            const existingItem = cart.items.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity = (existingItem.quantity || 1) + 1;
+            } else {
+                cart.items.push({ 
+                    id: id, 
+                    name: name, 
+                    price: price, 
+                    image: image, 
+                    quantity: 1 
+                });
+            }
+            
+            cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+            
+            localStorage.setItem('furnitureCart', JSON.stringify(cart));
+            
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                cartCount.textContent = cart.count;
+            }
+            
+            alert(`✅ "${name}" добавлен в корзину!`);
+        }
+
+        // ===== ФУНКЦИЯ СОРТИРОВКИ =====
+        function sortProducts(products, sortBy) {
+            const sorted = [...products];
+            
+            switch(sortBy) {
+                case 'price-asc':
+                    sorted.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    sorted.sort((a, b) => b.price - a.price);
+                    break;
+                case 'name':
+                    sorted.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                default:
+                    // По умолчанию сортируем по ID
+                    sorted.sort((a, b) => a.id - b.id);
+            }
+            
+            return sorted;
+        }
+
+        // ===== ФУНКЦИЯ ФИЛЬТРАЦИИ =====
+        function filterProducts(products, category, searchTerm) {
+            return products.filter(product => {
+                // Фильтр по категории
+                if (category !== 'all' && product.category !== category) {
+                    return false;
+                }
+                
+                // Фильтр по поиску
+                if (searchTerm) {
+                    const searchLower = searchTerm.toLowerCase();
+                    const nameMatch = product.name.toLowerCase().includes(searchLower);
+                    const descMatch = product.description.toLowerCase().includes(searchLower);
+                    return nameMatch || descMatch;
+                }
+                
+                return true;
             });
         }
-        
-        cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-        cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-        
-        localStorage.setItem('furnitureCart', JSON.stringify(cart));
-        
-        const cartCount = document.getElementById('cartCount');
-        if (cartCount) {
-            cartCount.textContent = cart.count;
-        }
-        
-        alert(`✅ "${name}" добавлен в корзину!`);
-    }
 
-    // ===== ЗАГРУЗКА ТОВАРОВ =====
-    async function loadProducts() {
-        console.log("Загружаю товары...");
-        
-        const category = document.getElementById('categoryFilter').value;
-        console.log("Выбрана категория:", category);
-        
-        const url = category === 'all' 
-            ? '/api/products' 
-            : `/api/products?category=${category}`;
-        
-        console.log("Запрашиваю URL:", url);
-        
-        try {
-            const response = await fetch(url);
-            console.log("Статус ответа:", response.status);
-            
-            const data = await response.json();
-            console.log("Получено товаров:", data.products.length);
-            
+        // ===== ОТОБРАЖЕНИЕ ТОВАРОВ =====
+        function displayProducts(products) {
             const grid = document.getElementById('productsGrid');
             
             if (!grid) {
@@ -203,12 +231,12 @@
             
             grid.innerHTML = '';
             
-            if (data.products.length === 0) {
+            if (products.length === 0) {
                 grid.innerHTML = '<div style="text-align: center; padding: 50px;">Товары не найдены</div>';
                 return;
             }
             
-            data.products.forEach(product => {
+            products.forEach(product => {
                 const card = document.createElement('div');
                 card.className = 'product-card-full';
                 card.dataset.category = product.category;
@@ -239,36 +267,82 @@
                 grid.appendChild(card);
             });
             
-            console.log("✅ Товары отображены");
-            
-        } catch (error) {
-            console.error("❌ Ошибка загрузки товаров:", error);
+            console.log("✅ Товары отображены:", products.length);
         }
-    }
 
-    // ===== ОБРАБОТЧИКИ СОБЫТИЙ =====
-    document.getElementById('categoryFilter').addEventListener('change', loadProducts);
-    
-    // Сортировка (пока заглушка)
-    document.getElementById('sortFilter').addEventListener('change', function() {
-        console.log("Сортировка будет реализована позже");
-    });
-    
-    // ===== ЗАГРУЗКА ПРИ СТАРТЕ =====
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("Страница каталога загружена");
-        loadProducts();
-        
-        const savedCart = localStorage.getItem('furnitureCart');
-        if (savedCart) {
-            const cart = JSON.parse(savedCart);
-            const cartCount = document.getElementById('cartCount');
-            if (cartCount) {
-                cartCount.textContent = cart.count || 0;
+        // ===== ОБНОВЛЕНИЕ ТОВАРОВ =====
+        function updateProducts() {
+            const category = document.getElementById('categoryFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const sortBy = document.getElementById('sortFilter').value;
+            
+            console.log("Фильтры:", { category, searchTerm, sortBy });
+            
+            // Фильтруем
+            let filtered = filterProducts(allProducts, category, searchTerm);
+            
+            // Сортируем
+            filtered = sortProducts(filtered, sortBy);
+            
+            // Отображаем
+            displayProducts(filtered);
+        }
+
+        // ===== ЗАГРУЗКА ТОВАРОВ С СЕРВЕРА =====
+        async function loadProducts() {
+            console.log("Загружаю товары с сервера...");
+            
+            try {
+                const response = await fetch('/api/products');
+                console.log("Статус ответа:", response.status);
+                
+                const data = await response.json();
+                console.log("Получено товаров:", data.products.length);
+                
+                // Сохраняем все товары
+                allProducts = data.products;
+                
+                // Отображаем
+                updateProducts();
+                
+            } catch (error) {
+                console.error("❌ Ошибка загрузки товаров:", error);
             }
         }
-    });
-</script>
-    
+
+        // ===== ОБРАБОТЧИКИ СОБЫТИЙ =====
+        document.getElementById('categoryFilter').addEventListener('change', updateProducts);
+        document.getElementById('sortFilter').addEventListener('change', updateProducts);
+        
+        // Поиск с задержкой
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(updateProducts, 500);
+        });
+        
+        // Кнопка сброса
+        document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortFilter').value = 'default';
+            updateProducts();
+        });
+        
+        // ===== ЗАГРУЗКА ПРИ СТАРТЕ =====
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Страница каталога загружена");
+            loadProducts();
+            
+            const savedCart = localStorage.getItem('furnitureCart');
+            if (savedCart) {
+                const cart = JSON.parse(savedCart);
+                const cartCount = document.getElementById('cartCount');
+                if (cartCount) {
+                    cartCount.textContent = cart.count || 0;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
