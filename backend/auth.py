@@ -1,3 +1,4 @@
+# backend/auth.py
 import hashlib
 import os
 from datetime import datetime, timedelta

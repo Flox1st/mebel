@@ -192,6 +192,44 @@
         .stock-badge.out {
             background: var(--warning-orange);
         }
+
+        .auth-message {
+            background: #fff5f5;
+            border-left: 4px solid var(--danger-red);
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .auth-message i {
+            font-size: 3em;
+            color: var(--danger-red);
+            margin-bottom: 15px;
+        }
+
+        .auth-message h3 {
+            color: var(--danger-red);
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .auth-message p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .rating-star {
+            font-size: 2em;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .rating-star:hover,
+        .rating-star.active {
+            color: gold;
+        }
     </style>
 </head>
 <body>
@@ -255,8 +293,8 @@
         <div class="product-layout">
             <div class="product-gallery">
                 <script>
-                    // Используем let вместо const и другое имя, чтобы не конфликтовать
-                    let productImageMap = {
+                    // Маппинг ID товаров на пути к картинкам
+                    var productImageMap = {
                         1: '/static/images/products/divan1.jpg',
                         2: '/static/images/products/divan2.jpg',
                         3: '/static/images/products/divan3.jpg',
@@ -271,13 +309,13 @@
                         12: '/static/images/products/stol4.jpg'
                     };
                     
-                    let currentProductId = {{ product.id }};
-                    let imagePath = productImageMap[currentProductId];
+                    var currentProductId = {{ product.id }};
+                    var imagePath = productImageMap[currentProductId];
                     
                     if (imagePath) {
-                        document.write(`<img src="${imagePath}" alt="{{ product.name }}" style="max-width: 100%; max-height: 400px; object-fit: contain;">`);
+                        document.write('<img src="' + imagePath + '" alt="{{ product.name }}" style="max-width: 100%; max-height: 400px; object-fit: contain;">');
                     } else {
-                        document.write(`<span style="font-size: 8em;">{{ product.image }}</span>`);
+                        document.write('<span style="font-size: 8em;">{{ product.image }}</span>');
                     }
                 </script>
             </div>
@@ -316,42 +354,11 @@
                 <h2 style="margin: 0;">Отзывы покупателей <span id="reviewsCount" style="font-size: 0.6em; color: var(--gray-dark);">0</span></h2>
             </div>
             
-            <!-- Форма добавления отзыва -->
-            <div style="background: var(--light-beige); padding: 20px; border-radius: var(--radius-md); margin-bottom: 30px;">
-                <h3 style="margin-bottom: 15px;">Оставить отзыв</h3>
-                <form id="reviewForm">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 10px; font-weight: bold;">Ваша оценка:</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="radio" name="rating" id="rating-1" value="1" style="display: none;">
-                            <input type="radio" name="rating" id="rating-2" value="2" style="display: none;">
-                            <input type="radio" name="rating" id="rating-3" value="3" style="display: none;">
-                            <input type="radio" name="rating" id="rating-4" value="4" style="display: none;">
-                            <input type="radio" name="rating" id="rating-5" value="5" style="display: none;">
-                            
-                            <span class="rating-star" data-rating="1" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
-                            <span class="rating-star" data-rating="2" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
-                            <span class="rating-star" data-rating="3" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
-                            <span class="rating-star" data-rating="4" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
-                            <span class="rating-star" data-rating="5" style="font-size: 2em; color: #ccc; cursor: pointer;">★</span>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label for="reviewText" style="display: block; margin-bottom: 5px; font-weight: bold;">Ваш отзыв:</label>
-                        <textarea id="reviewText" rows="4" style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: var(--radius-sm);" placeholder="Поделитесь впечатлениями о товаре..."></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary" style="padding: 10px 30px;">
-                        <i class="fas fa-paper-plane"></i> Отправить отзыв
-                    </button>
-                </form>
-            </div>
+            <!-- Контейнер для формы отзыва -->
+            <div id="reviewFormContainer"></div>
             
-            <!-- Контейнер для отзывов -->
-            <div id="reviewsContainer">
-                <!-- Сюда будут подгружаться отзывы -->
-            </div>
+            <!-- Контейнер для списка отзывов -->
+            <div id="reviewsContainer"></div>
         </div>
     </div>
 
@@ -364,187 +371,143 @@
         </div>
     </footer>
 
+        <!-- Весь HTML до скриптов оставляем без изменений -->
+    
     <script src="/static/auth.js"></script>
     <script>
-        // Объявляем productId только один раз, в глобальной области
-        const productId = {{ product.id }};
+    // Глобальная переменная с ID товара
+    var productId = {{ product.id }};
+
+    // ===== ПРОСТЫЕ ФУНКЦИИ =====
+    function getAuthToken() {
+        // Просто возвращаем строку, без JSON.parse
+        return localStorage.getItem('authToken');
+    }
+
+    function isUserLoggedIn() {
+        return localStorage.getItem('userLoggedIn') === 'true' && localStorage.getItem('authToken') !== null;
+    }
+
+    // ===== ОТЛАДКА =====
+    console.log('=== ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ТОВАРА ===');
+    console.log('authToken:', localStorage.getItem('authToken'));
+    console.log('userLoggedIn:', localStorage.getItem('userLoggedIn'));
+    console.log('currentUser:', localStorage.getItem('currentUser'));
+
+    // ===== ЗАГРУЗКА ОТЗЫВОВ =====
+    async function loadReviews() {
+        try {
+            var response = await fetch('/api/products/' + productId + '/reviews');
+            var data = await response.json();
+            
+            var container = document.getElementById('reviewsContainer');
+            var counter = document.getElementById('reviewsCount');
+            
+            if (counter) {
+                counter.textContent = data.reviews ? data.reviews.length : 0;
+            }
+            
+            if (!data.reviews || data.reviews.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px;">Пока нет отзывов</div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < data.reviews.length; i++) {
+                html += '<div class="review-card">' +
+                    '<div><strong>' + data.reviews[i].user_name + '</strong></div>' +
+                    '<div>' + data.reviews[i].text + '</div>' +
+                    '</div>';
+            }
+            container.innerHTML = html;
+            
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    }
+
+    // ===== ФОРМА ОТЗЫВА =====
+    function showReviewForm() {
+        var container = document.getElementById('reviewFormContainer');
+        if (!container) return;
         
-        // ===== ЗАГРУЗКА ОТЗЫВОВ =====
-        async function loadReviews() {
-            try {
-                const container = document.getElementById('reviewsContainer');
-                const counter = document.getElementById('reviewsCount');
-                
-                if (!container) {
-                    console.error('❌ Элемент reviewsContainer не найден!');
-                    return;
-                }
-                
-                const response = await fetch(`/api/products/${productId}/reviews`);
-                const data = await response.json();
-                
-                if (counter) {
-                    counter.textContent = data.reviews.length;
-                }
-                
-                if (!data.reviews || data.reviews.length === 0) {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 40px; color: var(--gray-dark);">
-                            <i class="fas fa-comment" style="font-size: 3em; margin-bottom: 15px; opacity: 0.3;"></i>
-                            <p>Пока нет отзывов. Будьте первым!</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                let html = '';
-                data.reviews.forEach(review => {
-                    let stars = '';
-                    for (let i = 1; i <= 5; i++) {
-                        stars += i <= review.rating 
-                            ? '<i class="fas fa-star" style="color: gold;"></i>'
-                            : '<i class="far fa-star" style="color: #ccc;"></i>';
-                    }
-                    
-                    html += `
-                        <div class="review-card">
-                            <div class="review-header">
-                                <span class="review-author">
-                                    <i class="fas fa-user-circle"></i> ${review.user_name}
-                                </span>
-                                <span class="review-date">${review.created_at}</span>
-                            </div>
-                            <div class="review-rating">${stars}</div>
-                            <div class="review-text">${review.text}</div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = html;
-                
-            } catch (error) {
-                console.error('Ошибка загрузки отзывов:', error);
-            }
+        var token = getAuthToken();
+        var loggedIn = isUserLoggedIn();
+        
+        console.log('showReviewForm - токен:', token);
+        console.log('showReviewForm - авторизация:', loggedIn);
+        
+        if (loggedIn && token) {
+            container.innerHTML = '' +
+                '<div style="background: #f5f5f5; padding: 20px; margin: 20px 0;">' +
+                    '<h3>Оставить отзыв</h3>' +
+                    '<select id="reviewRating" style="width: 100%; padding: 10px; margin-bottom: 10px;">' +
+                        '<option value="5">5 звезд</option>' +
+                        '<option value="4">4 звезды</option>' +
+                        '<option value="3">3 звезды</option>' +
+                        '<option value="2">2 звезды</option>' +
+                        '<option value="1">1 звезда</option>' +
+                    '</select>' +
+                    '<textarea id="reviewText" rows="4" style="width: 100%; padding: 10px; margin-bottom: 10px;" placeholder="Ваш отзыв..."></textarea>' +
+                    '<button onclick="submitReview()" class="btn btn-primary">Отправить</button>' +
+                '</div>';
+        } else {
+            container.innerHTML = '' +
+                '<div style="background: #ffeeee; padding: 20px; margin: 20px 0; text-align: center;">' +
+                    '<p>Чтобы оставить отзыв, <a href="/">войдите</a> в систему</p>' +
+                '</div>';
         }
+    }
 
-        // ===== ДОБАВЛЕНИЕ ОТЗЫВА =====
-        document.getElementById('reviewForm')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const rating = document.querySelector('input[name="rating"]:checked')?.value;
-            const text = document.getElementById('reviewText').value.trim();
-            
-            if (!rating) {
-                alert('Поставьте оценку');
-                return;
-            }
-            if (!text || text.length < 5) {
-                alert('Напишите отзыв (минимум 5 символов)');
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/reviews', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        product_id: productId,
-                        rating: parseInt(rating),
-                        text: text,
-                        user_name: "Гость" // Добавляем имя пользователя
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('✅ Спасибо! Отзыв добавлен');
-                    document.getElementById('reviewText').value = '';
-                    
-                    // Снимаем выделение со звёздочек
-                    document.querySelectorAll('input[name="rating"]').forEach(r => r.checked = false);
-                    document.querySelectorAll('.rating-star').forEach(s => s.style.color = '#ccc');
-                    
-                    loadReviews(); // Перезагружаем отзывы
-                } else {
-                    alert('❌ ' + result.message);
-                }
-                
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Ошибка при отправке отзыва');
-            }
-        });
-
-        // ===== ЗВЁЗДОЧКИ (рабочие) =====
-        document.querySelectorAll('.rating-star').forEach((star, index) => {
-            star.addEventListener('click', function() {
-                const rating = this.dataset.rating;
-                
-                // Снимаем выделение со всех звёзд
-                document.querySelectorAll('.rating-star').forEach(s => {
-                    s.style.color = '#ccc';
-                });
-                
-                // Выделяем звёзды до текущей включительно
-                for (let i = 0; i <= index; i++) {
-                    document.querySelectorAll('.rating-star')[i].style.color = 'gold';
-                }
-                
-                // Отмечаем соответствующую радио-кнопку
-                document.getElementById(`rating-${rating}`).checked = true;
+    // ===== ОТПРАВКА ОТЗЫВА =====
+    async function submitReview() {
+        var rating = document.getElementById('reviewRating').value;
+        var text = document.getElementById('reviewText').value.trim();
+        var token = getAuthToken();
+        
+        if (!text) {
+            alert('Напишите отзыв');
+            return;
+        }
+        
+        console.log('Отправка с токеном:', token);
+        
+        try {
+            var response = await fetch('/api/reviews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    rating: parseInt(rating),
+                    text: text
+                })
             });
-        });
-
-        // ===== КОРЗИНА =====
-        function addToCart(id, name, price, image) {
-            let cart = JSON.parse(localStorage.getItem('furnitureCart'));
-            if (!cart) {
-                cart = { items: [], count: 0, total: 0 };
-            }
             
-            const existingItem = cart.items.find(item => item.id === id);
-            if (existingItem) {
-                existingItem.quantity = (existingItem.quantity || 1) + 1;
+            var result = await response.json();
+            console.log('Результат:', result);
+            
+            if (result.success) {
+                alert('Отзыв добавлен!');
+                document.getElementById('reviewText').value = '';
+                loadReviews();
             } else {
-                cart.items.push({ 
-                    id: id, 
-                    name: name, 
-                    price: price, 
-                    image: image, 
-                    quantity: 1 
-                });
+                alert('Ошибка: ' + result.message);
             }
             
-            cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-            cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-            
-            localStorage.setItem('furnitureCart', JSON.stringify(cart));
-            
-            const cartCount = document.getElementById('cartCount');
-            if (cartCount) {
-                cartCount.textContent = cart.count;
-            }
-            
-            alert(`✅ "${name}" добавлен в корзину!`);
+        } catch (error) {
+            console.error('Ошибка:', error);
         }
+    }
 
-        // ===== ЗАГРУЗКА ПРИ СТАРТЕ =====
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Страница товара загружена, productId =', productId);
-            loadReviews();
-            
-            const savedCart = localStorage.getItem('furnitureCart');
-            if (savedCart) {
-                const cart = JSON.parse(savedCart);
-                const cartCount = document.getElementById('cartCount');
-                if (cartCount) {
-                    cartCount.textContent = cart.count || 0;
-                }
-            }
-        });
-    </script>
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Страница загружена');
+        loadReviews();
+        showReviewForm();
+    });
+</script>
 </body>
 </html>

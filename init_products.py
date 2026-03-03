@@ -3,19 +3,13 @@ import sys
 import os
 from pathlib import Path
 
+# Добавляем путь к папке backend в sys.path
 backend_dir = Path(__file__).parent / 'backend'
 sys.path.append(str(backend_dir))
-frontend_dir = Path(__file__).parent / 'frontend'
-sys.path.append(str(frontend_dir))
 
 # Теперь импортируем
-import backend
-from backend import database, models
 from database import SessionLocal, engine
 from models import Base, Product
-import frontend
-from frontend import images
-from images import *
 
 # Данные товаров
 products_data = [
@@ -24,7 +18,7 @@ products_data = [
         "name": "Диван Комфорт",
         "description": "Угловой диван с механизмом трансформации. Идеально подходит для просторных гостиных. Обивка - велюр, наполнитель - пенополиуретан высокой плотности.",
         "price": 45990,
-        "category": "Диваны",
+        "category": "sofas",
         "image": "🛋️",
         "specs": {
             "material": "велюр (100% полиэстер)",
@@ -43,7 +37,7 @@ products_data = [
         "name": "Диван Уют",
         "description": "Прямой диван с подлокотниками. Компактный, идеально для небольших комнат. Обивка - микрофибра, наполнитель - холлофайбер.",
         "price": 38990,
-        "category": "Диваны",
+        "category": "sofas",
         "image": "🛋️",
         "specs": {
             "material": "микрофибра",
@@ -62,7 +56,7 @@ products_data = [
         "name": "Диван Престиж",
         "description": "Кожаный диван с электроприводом. Регулировка положения спинки и подставки для ног. Премиум-класс для ценителей комфорта.",
         "price": 52990,
-        "category": "Диваны",
+        "category": "sofas",
         "image": "🛋️",
         "specs": {
             "material": "натуральная кожа",
@@ -80,7 +74,7 @@ products_data = [
         "name": "Диван Компакт",
         "description": "Маленький диван для кухни или прихожей. Легкий, удобный, легко моется. Идеальное решение для небольших помещений.",
         "price": 32990,
-        "category": "Диваны",
+        "category": "sofas",
         "image": "🛋️",
         "specs": {
             "material": "экокожа",
@@ -99,7 +93,7 @@ products_data = [
         "name": "Кровать Спокойствие",
         "description": "Двуспальная кровать с ортопедическим основанием. Материал - массив сосны. Экологичная и надежная кровать для здорового сна.",
         "price": 32990,
-        "category": "Кровати",
+        "category": "beds",
         "image": "🛏️",
         "specs": {
             "material": "массив сосны",
@@ -116,7 +110,7 @@ products_data = [
         "name": "Кровать Престиж",
         "description": "Кровать с мягким изголовьем из велюра. Очень уютная и стильная. Идеально подойдет для спальни в современном стиле.",
         "price": 45990,
-        "category": "Кровати",
+        "category": "beds",
         "image": "🛏️",
         "specs": {
             "material": "велюр + ЛДСП",
@@ -133,7 +127,7 @@ products_data = [
         "name": "Кровать односпальная",
         "description": "Для подростковой или гостевой комнаты. Простая и надежная кровать из качественных материалов. Компактная и функциональная.",
         "price": 24990,
-        "category": "Кровати",
+        "category": "beds",
         "image": "🛏️",
         "specs": {
             "material": "ЛДСП",
@@ -150,7 +144,7 @@ products_data = [
         "name": "Кровать детская",
         "description": "С бортиками и безопасным дизайном. Для детей от 3 до 10 лет. Кровать изготовлена из экологичных материалов, имеет закругленные углы и защитные бортики.",
         "price": 39990,
-        "category": "Кровати",
+        "category": "beds",
         "image": "🛏️",
         "specs": {
             "material": "массив березы",
@@ -168,7 +162,7 @@ products_data = [
         "name": "Стол обеденный",
         "description": "Раскладной стол из массива дуба. Покрытие - матовый лак. Идеальное решение для семейных обедов и праздничных ужинов.",
         "price": 18990,
-        "category": "Столы",
+        "category": "tables",
         "image": "🪑",
         "specs": {
             "material": "дуб",
@@ -186,7 +180,7 @@ products_data = [
         "name": "Стол письменный",
         "description": "Удобный письменный стол с ящиками для хранения. Организуйте свое рабочее пространство с комфортом. Идеально для дома или офиса.",
         "price": 24990,
-        "category": "Столы",
+        "category": "tables",
         "image": "🪑",
         "specs": {
             "material": "ЛДСП",
@@ -203,7 +197,7 @@ products_data = [
         "name": "Стол компьютерный",
         "description": "Эргономичный компьютерный стол с полкой для системного блока и выдвижной панелью для клавиатуры. Все необходимое для комфортной работы за компьютером.",
         "price": 32990,
-        "category": "Столы",
+        "category": "tables",
         "image": "🪑",
         "specs": {
             "material": "ЛДСП",
@@ -222,7 +216,7 @@ products_data = [
         "name": "Стол журнальный",
         "description": "Стильный журнальный столик для гостиной. Легкий, изящный, но при этом прочный. Идеально подходит для книг, журналов и чашечки кофе.",
         "price": 15990,
-        "category": "Столы",
+        "category": "tables",
         "image": "🪑",
         "specs": {
             "material": "стекло + металл",
@@ -248,27 +242,46 @@ def init_products():
     db = SessionLocal()
     
     try:
-        # Очищаем таблицу товаров (если хочешь обновить данные)
-        db.query(Product).delete()
+        # Получаем список существующих товаров
+        existing_products = db.query(Product).all()
+        existing_names = {p.name for p in existing_products}
         
-        # Добавляем товары
+        added_count = 0
+        updated_count = 0
+        
         for product_data in products_data:
-            # Преобразуем specs в JSON строку
+            # Проверяем, есть ли товар с таким названием
+            existing = db.query(Product).filter(Product.name == product_data["name"]).first()
+            
             specs_json = json.dumps(product_data["specs"], ensure_ascii=False)
             
-            product = Product(
-                name=product_data["name"],
-                description=product_data["description"],
-                price=product_data["price"],
-                category=product_data["category"],
-                image=product_data["image"],
-                specs=specs_json,
-                stock=product_data["stock"]
-            )
-            db.add(product)
+            if existing:
+                # Обновляем существующий товар
+                existing.description = product_data["description"]
+                existing.price = product_data["price"]
+                existing.category = product_data["category"]
+                existing.image = product_data["image"]
+                existing.specs = specs_json
+                existing.stock = product_data["stock"]
+                updated_count += 1
+                print(f"🔄 Обновлен: {product_data['name']}")
+            else:
+                # Добавляем новый товар
+                product = Product(
+                    name=product_data["name"],
+                    description=product_data["description"],
+                    price=product_data["price"],
+                    category=product_data["category"],
+                    image=product_data["image"],
+                    specs=specs_json,
+                    stock=product_data["stock"]
+                )
+                db.add(product)
+                added_count += 1
+                print(f"✅ Добавлен: {product_data['name']}")
         
         db.commit()
-        print(f"✅ Добавлено {len(products_data)} товаров в базу данных")
+        print(f"\n📊 Итог: добавлено {added_count}, обновлено {updated_count} товаров")
         
     except Exception as e:
         print(f"❌ Ошибка: {e}")

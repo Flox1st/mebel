@@ -6,14 +6,15 @@ from pathlib import Path
 # Добавляем путь к папке backend
 sys.path.append(os.path.dirname(__file__))
 
-from fastapi import FastAPI, Form, Request, Depends
+from fastapi import FastAPI, Form, Request, Depends, Header, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from typing import Optional
 
-# Импорты без точек!
+# Импорты из наших модулей
 import models
 import auth
 import database
@@ -23,10 +24,9 @@ app = FastAPI()
 # Пути к фронтенду
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
-STATIC_DIR = FRONTEND_DIR
 
 # Подключаем статические файлы
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
 
 # Шаблонизатор
 templates = Jinja2Templates(directory=str(FRONTEND_DIR))
@@ -42,7 +42,7 @@ def get_db():
     finally:
         db.close()
 
-# ========== API ==========
+# ========== API МОДЕЛИ ==========
 class ReviewCreate(BaseModel):
     product_id: int
     rating: int
@@ -53,11 +53,31 @@ class ReviewCreate(BaseModel):
 @app.post("/api/reviews")
 async def create_review(
     review: ReviewCreate,
+    authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
-    """Создать новый отзыв (без авторизации)"""
+    """Создать новый отзыв (ТОЛЬКО ДЛЯ АВТОРИЗОВАННЫХ)"""
     try:
-        # Проверяем, существует ли товар
+        # 1. Проверяем наличие токена
+        if not authorization or not authorization.startswith("Bearer "):
+            return JSONResponse(
+                content={"success": False, "message": "Требуется авторизация"},
+                status_code=401
+            )
+        
+        # 2. Извлекаем токен
+        token = authorization.replace("Bearer ", "")
+        
+        # 3. Получаем текущего пользователя
+        try:
+            current_user = auth.get_current_user(db, token)
+        except HTTPException:
+            return JSONResponse(
+                content={"success": False, "message": "Недействительный токен"},
+                status_code=401
+            )
+        
+        # 4. Проверяем, существует ли товар
         product = db.query(models.Product).filter(models.Product.id == review.product_id).first()
         if not product:
             return JSONResponse(
@@ -65,10 +85,9 @@ async def create_review(
                 status_code=404
             )
         
-        # Создаём отзыв с user_id = 1 (или можно сделать отдельную таблицу для гостей)
-        # Для простоты используем user_id = 1 (первый пользователь)
+        # 5. Создаём отзыв с реальным user_id
         db_review = models.Review(
-            user_id=1,  # Временно привязываем к первому пользователю
+            user_id=current_user.id,
             product_id=review.product_id,
             rating=review.rating,
             text=review.text
@@ -98,21 +117,30 @@ async def get_product_reviews(
     db: Session = Depends(get_db)
 ):
     """Получить все отзывы для товара"""
-    reviews = db.query(models.Review).filter(
-        models.Review.product_id == product_id
-    ).order_by(models.Review.created_at.desc()).all()
-    
-    result = []
-    for r in reviews:
-        result.append({
-            "id": r.id,
-            "user_name": r.user.full_name if r.user else "Пользователь",
-            "rating": r.rating,
-            "text": r.text,
-            "created_at": r.created_at.strftime("%d.%m.%Y")
-        })
-    
-    return {"reviews": result}
+    try:
+        reviews = db.query(models.Review).filter(
+            models.Review.product_id == product_id
+        ).order_by(models.Review.created_at.desc()).all()
+        
+        result = []
+        for r in reviews:
+            user_name = "Пользователь"
+            if r.user:
+                user_name = r.user.full_name if r.user.full_name else r.user.username
+            
+            result.append({
+                "id": r.id,
+                "user_name": user_name,
+                "rating": r.rating,
+                "text": r.text,
+                "created_at": r.created_at.strftime("%d.%m.%Y") if r.created_at else ""
+            })
+        
+        return {"reviews": result}
+    except Exception as e:
+        print(f"❌ Ошибка загрузки отзывов: {e}")
+        return {"reviews": []}
+
 
 @app.post("/api/register")
 async def register(
@@ -145,7 +173,6 @@ async def register(
         # Создаём пользователя
         hashed = auth.get_password_hash(password)
         
-        # Убедись, что в models.User есть все эти поля!
         user = models.User(
             username=username,
             email=email,
@@ -174,6 +201,7 @@ async def register(
             status_code=500
         )
 
+
 @app.post("/api/login")
 async def login(
     request: Request,
@@ -198,12 +226,14 @@ async def login(
                 status_code=401
             )
         
+        # СОЗДАЕМ ТОКЕН
         token = auth.create_access_token(data={"sub": user.username})
         
+        # ВОЗВРАЩАЕМ ТОКЕН
         return {
             "success": True,
             "message": "Вход выполнен",
-            "access_token": token,
+            "access_token": token,  # ЭТО КЛЮЧЕВОЕ ПОЛЕ!
             "user": {
                 "id": user.id,
                 "username": user.username,
@@ -213,29 +243,43 @@ async def login(
         }
         
     except Exception as e:
+        print(f"❌ Ошибка входа: {e}")
         return JSONResponse(
             content={"success": False, "message": f"Ошибка: {str(e)}"},
             status_code=500
         )
 
+@app.get("/api/test-token")
+async def test_token(request: Request):
+    """Тестовый эндпоинт для проверки авторизации"""
+    auth_header = request.headers.get("authorization")
+    return {
+        "has_auth_header": bool(auth_header),
+        "auth_header": auth_header
+    }
+
 @app.get("/api/carousel")
 async def get_carousel(db: Session = Depends(get_db)):
     """Получить все активные слайды карусели"""
-    slides = db.query(models.Carousel).filter(
-        models.Carousel.is_active == 1
-    ).order_by(models.Carousel.order).all()
-    
-    result = []
-    for slide in slides:
-        result.append({
-            "id": slide.id,
-            "title": slide.title,
-            "subtitle": slide.subtitle,
-            "image_url": slide.image_url,
-            "link": slide.link
-        })
-    
-    return {"slides": result}
+    try:
+        slides = db.query(models.Carousel).filter(
+            models.Carousel.is_active == 1
+        ).order_by(models.Carousel.order).all()
+        
+        result = []
+        for slide in slides:
+            result.append({
+                "id": slide.id,
+                "title": slide.title,
+                "subtitle": slide.subtitle,
+                "image_url": slide.image_url,
+                "link": slide.link
+            })
+        
+        return {"slides": result}
+    except Exception as e:
+        print(f"❌ Ошибка загрузки карусели: {e}")
+        return {"slides": []}
 
 
 # ========== ТОВАРЫ ==========
@@ -245,48 +289,59 @@ async def get_products(
     category: str = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(models.Product)
-    if category and category != "all":
-        query = query.filter(models.Product.category == category)
-    
-    products = query.all()
-    
-    result = []
-    for p in products:
-        result.append({
-            "id": p.id,
-            "name": p.name,
-            "description": p.description,
-            "price": p.price,
-            "category": p.category,
-            "image": p.image,
-            "specs": json.loads(p.specs) if p.specs else {},
-            "stock": p.stock
-        })
-    
-    return {"products": result}
+    try:
+        query = db.query(models.Product)
+        if category and category != "all":
+            query = query.filter(models.Product.category == category)
+        
+        products = query.all()
+        
+        result = []
+        for p in products:
+            result.append({
+                "id": p.id,
+                "name": p.name,
+                "description": p.description,
+                "price": p.price,
+                "category": p.category,
+                "image": p.image,
+                "specs": json.loads(p.specs) if p.specs else {},
+                "stock": p.stock
+            })
+        
+        return {"products": result}
+    except Exception as e:
+        print(f"❌ Ошибка загрузки товаров: {e}")
+        return {"products": []}
 
 
 @app.get("/api/products/{product_id}")
 async def get_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
-    
-    if not product:
+    try:
+        product = db.query(models.Product).filter(models.Product.id == product_id).first()
+        
+        if not product:
+            return JSONResponse(
+                content={"success": False, "message": "Товар не найден"},
+                status_code=404
+            )
+        
+        return {
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "category": product.category,
+            "image": product.image,
+            "specs": json.loads(product.specs) if product.specs else {},
+            "stock": product.stock
+        }
+    except Exception as e:
+        print(f"❌ Ошибка загрузки товара: {e}")
         return JSONResponse(
-            content={"success": False, "message": "Товар не найден"},
-            status_code=404
+            content={"success": False, "message": "Ошибка сервера"},
+            status_code=500
         )
-    
-    return {
-        "id": product.id,
-        "name": product.name,
-        "description": product.description,
-        "price": product.price,
-        "category": product.category,
-        "image": product.image,
-        "specs": json.loads(product.specs) if product.specs else {},
-        "stock": product.stock
-    }
 
 
 # ========== СТРАНИЦЫ ==========
@@ -303,31 +358,34 @@ async def serve_products(request: Request):
 
 @app.get("/product/{product_id}", response_class=HTMLResponse)
 async def serve_product(request: Request, product_id: int, db: Session = Depends(get_db)):
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
-    
-    if not product:
-        return templates.TemplateResponse("index.html", {"request": request})
-    
-    # Подготовка данных для шаблона
-    product_data = {
-        "id": product.id,
-        "name": product.name,
-        "description": product.description,
-        "price": product.price,
-        "category": product.category,
-        "image": product.image,
-        "image_url": product.image_url if hasattr(product, 'image_url') else None,
-        "specs": json.loads(product.specs) if product.specs else {},
-        "stock": product.stock
-    }
-    
-    return templates.TemplateResponse(
-        "product_template.html", 
-        {
-            "request": request,
-            "product": product_data
+    try:
+        product = db.query(models.Product).filter(models.Product.id == product_id).first()
+        
+        if not product:
+            return templates.TemplateResponse("index.html", {"request": request})
+        
+        # Подготовка данных для шаблона
+        product_data = {
+            "id": product.id,
+            "name": product.name,
+            "description": product.description,
+            "price": product.price,
+            "category": product.category,
+            "image": product.image,
+            "specs": json.loads(product.specs) if product.specs else {},
+            "stock": product.stock
         }
-    )
+        
+        return templates.TemplateResponse(
+            "product_template.html", 
+            {
+                "request": request,
+                "product": product_data
+            }
+        )
+    except Exception as e:
+        print(f"❌ Ошибка загрузки страницы товара: {e}")
+        return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/register", response_class=HTMLResponse)

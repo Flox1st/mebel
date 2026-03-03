@@ -37,7 +37,7 @@
                 
                 <!-- Иконка корзины -->
                 <div class="cart-icon">
-                    <a href="cart.html" class="cart-link">
+                    <a href="/cart" class="cart-link">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Корзина</span>
                         <span class="cart-count" id="cartCount">0</span>
@@ -57,20 +57,64 @@
         </div>
     </nav>
 
+    <!-- Карусель -->
     <section class="carousel-section">
         <div class="carousel-container">
+            <!-- Счетчик слайдов -->
             <div class="carousel-counter">
-                <span id="currentSlide">1</span> / <span id="totalSlides">0</span>
+                <span id="currentSlide">1</span> / <span id="totalSlides">4</span>
             </div>
             
+            <!-- Контейнер слайдов -->
             <div class="carousel-slides" id="carouselSlides">
-                <!-- Слайды будут загружены через JavaScript -->
+                <!-- Слайд 1 -->
+                <div class="carousel-slide active">
+                    <img src="/static/images/products/divan1.jpg" alt="Мягкая мебель" class="carousel-image" onerror="this.src='https://via.placeholder.com/1200x400?text=Диваны'">
+                    <div class="carousel-caption">
+                        <h3>Мягкая мебель</h3>
+                        <p>Диваны и кресла для уютного отдыха</p>
+                    </div>
+                </div>
+                
+                <!-- Слайд 2 -->
+                <div class="carousel-slide">
+                    <img src="/static/images/products/stol2.jpg" alt="Спальни" class="carousel-image" onerror="this.src='https://via.placeholder.com/1200x400?text=Спальни'">
+                    <div class="carousel-caption">
+                        <h3>Спальни</h3>
+                        <p>Кровати, шкафы и комоды для вашей спальни</p>
+                    </div>
+                </div>
+                
+                <!-- Слайд 3 -->
+                <div class="carousel-slide">
+                    <img src="/static/images/products/divan3.jpg" alt="Кухонная мебель" class="carousel-image" onerror="this.src='https://via.placeholder.com/1200x400?text=Кухни'">
+                    <div class="carousel-caption">
+                        <h3>Кухонная мебель</h3>
+                        <p>Столы, стулья и кухонные гарнитуры</p>
+                    </div>
+                </div>
+
+                <!-- Слайд 4 -->
+                <div class="carousel-slide">
+                    <img src="/static/images/products/krovat4.jpg" alt="Прихожие" class="carousel-image" onerror="this.src='https://via.placeholder.com/1200x400?text=Прихожие'">
+                    <div class="carousel-caption">
+                        <h3>Прихожие</h3>
+                        <p>Шкафы, вешалки и тумбы для прихожей</p>
+                    </div>
+                </div>
             </div>
             
+            <!-- Кнопки навигации -->
             <button class="carousel-btn prev" onclick="prevSlide()">‹</button>
             <button class="carousel-btn next" onclick="nextSlide()">›</button>
             
+            <!-- Индикаторы -->
             <div class="carousel-indicators" id="carouselIndicators"></div>
+            
+            <!-- Контролы -->
+            <div class="carousel-controls">
+                <button class="control-btn" id="pauseBtn" onclick="toggleAutoPlay()">⏸</button>
+            </div>
         </div>
     </section>
 
@@ -147,45 +191,11 @@
             <section class="popular-products">
                 <div class="section-header">
                     <h2>Популярные товары</h2>
-                    <a href="products.html" class="section-link">Смотреть все →</a>
+                    <a href="/products" class="section-link">Смотреть все →</a>
                 </div>
                 
-                <div class="products-grid-home">
-                    <!-- Товар 1 -->
-                    <div class="product-card" data-id="1">
-                        <div class="product-image">
-                            <img src="/static/images/products/divan1.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title">Диван "Комфорт"</h3>
-                            <div class="product-price">45 990 ₽</div>
-                            <button class="add-to-cart-btn" onclick="addToCart(1)">В корзину</button>
-                        </div>
-                    </div>
-
-                    <!-- Товар 2 -->
-                    <div class="product-card" data-id="2">
-                        <div class="product-image">
-                            <img src="/static/images/products/krovat2.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title">Кровать "Спокойствие"</h3>
-                            <div class="product-price">32 990 ₽</div>
-                            <button class="add-to-cart-btn" onclick="addToCart(2)">В корзину</button>
-                        </div>
-                    </div>
-
-                    <!-- Товар 3 -->
-                    <div class="product-card" data-id="4">
-                        <div class="product-image">
-                            <img src="/static/images/products/stol3.jpg" alt="Диван Комфорт" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div class="product-info">
-                            <h3 class="product-title">Шкаф "Гармония"</h3>
-                            <div class="product-price">27 990 ₽</div>
-                            <button class="add-to-cart-btn" onclick="addToCart(4)">В корзину</button>
-                        </div>
-                    </div>
+                <div class="products-grid-home" id="popularProducts">
+                    <!-- Товары загружаются через JavaScript -->
                 </div>
             </section>
 
@@ -225,254 +235,336 @@
         </div>
     </footer>
 
-    <!-- Скрипты -->
     <script src="/static/auth.js"></script>
     <script>
-        // Карусель
+        // Карусель изображений
         class Carousel {
             constructor() {
                 this.slides = document.querySelectorAll('.carousel-slide');
+                this.slidesContainer = document.getElementById('carouselSlides');
                 this.indicatorsContainer = document.getElementById('carouselIndicators');
                 this.currentSlide = 0;
                 this.totalSlides = this.slides.length;
+                this.autoPlayInterval = null;
+                this.autoPlayDelay = 5000;
+                this.isPlaying = true;
                 
                 this.init();
             }
             
             init() {
-                if (this.totalSlides === 0) return;
-                
-                // Создаем индикаторы
-                for (let i = 0; i < this.totalSlides; i++) {
-                    const indicator = document.createElement('div');
-                    indicator.className = `carousel-indicator ${i === 0 ? 'active' : ''}`;
-                    indicator.dataset.index = i;
-                    indicator.onclick = () => this.goToSlide(i);
-                    this.indicatorsContainer.appendChild(indicator);
+                // Проверяем, есть ли слайды
+                if (this.totalSlides === 0) {
+                    console.error('Карусель: слайды не найдены');
+                    return;
                 }
                 
+                console.log('Карусель инициализирована. Слайдов:', this.totalSlides);
+                
+                // Очищаем индикаторы перед созданием
+                if (this.indicatorsContainer) {
+                    this.indicatorsContainer.innerHTML = '';
+                    
+                    // Создаем индикаторы
+                    for (let i = 0; i < this.totalSlides; i++) {
+                        const indicator = document.createElement('div');
+                        indicator.className = `carousel-indicator ${i === 0 ? 'active' : ''}`;
+                        indicator.dataset.index = i;
+                        indicator.addEventListener('click', () => this.goToSlide(i));
+                        this.indicatorsContainer.appendChild(indicator);
+                    }
+                }
+                
+                // Обновляем счетчик
                 this.updateCounter();
+                
+                // Запускаем автопрокрутку
+                this.startAutoPlay();
+                
+                // Добавляем обработчики клавиатуры
+                this.addKeyboardListeners();
+                
+                // Добавляем обработчик для паузы при наведении
+                this.addHoverListeners();
+                
+                // Показываем первый слайд
+                this.showSlide(this.currentSlide);
+            }
+            
+            showSlide(index) {
+                if (!this.slides || this.slides.length === 0) return;
+                
+                // Скрываем все слайды
+                this.slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+                
+                // Показываем выбранный слайд
+                if (this.slides[index]) {
+                    this.slides[index].classList.add('active');
+                }
             }
             
             goToSlide(index) {
-                this.slides.forEach(slide => slide.classList.remove('active'));
-                this.slides[index].classList.add('active');
+                if (index < 0 || index >= this.totalSlides) {
+                    console.error('Карусель: неверный индекс слайда', index);
+                    return;
+                }
                 
-                const indicators = document.querySelectorAll('.carousel-indicator');
-                indicators.forEach((ind, i) => {
-                    ind.classList.toggle('active', i === index);
-                });
+                console.log('Переход к слайду:', index);
                 
+                // Показываем слайд
+                this.showSlide(index);
+                
+                // Обновляем текущий слайд
                 this.currentSlide = index;
+                
+                // Обновляем индикаторы
+                this.updateIndicators();
+                
+                // Обновляем счетчик
                 this.updateCounter();
+                
+                // Перезапускаем автопрокрутку
+                this.restartAutoPlay();
             }
             
             nextSlide() {
-                let next = this.currentSlide + 1;
-                if (next >= this.totalSlides) next = 0;
-                this.goToSlide(next);
+                let nextIndex = this.currentSlide + 1;
+                if (nextIndex >= this.totalSlides) {
+                    nextIndex = 0;
+                }
+                this.goToSlide(nextIndex);
             }
             
             prevSlide() {
-                let prev = this.currentSlide - 1;
-                if (prev < 0) prev = this.totalSlides - 1;
-                this.goToSlide(prev);
+                let prevIndex = this.currentSlide - 1;
+                if (prevIndex < 0) {
+                    prevIndex = this.totalSlides - 1;
+                }
+                this.goToSlide(prevIndex);
+            }
+            
+            updateIndicators() {
+                if (!this.indicatorsContainer) return;
+                
+                const indicators = this.indicatorsContainer.querySelectorAll('.carousel-indicator');
+                indicators.forEach((indicator, index) => {
+                    if (index === this.currentSlide) {
+                        indicator.classList.add('active');
+                    } else {
+                        indicator.classList.remove('active');
+                    }
+                });
             }
             
             updateCounter() {
-                document.getElementById('currentSlide').textContent = this.currentSlide + 1;
-                document.getElementById('totalSlides').textContent = this.totalSlides;
+                const currentSlideEl = document.getElementById('currentSlide');
+                const totalSlidesEl = document.getElementById('totalSlides');
+                
+                if (currentSlideEl) {
+                    currentSlideEl.textContent = this.currentSlide + 1;
+                }
+                
+                if (totalSlidesEl) {
+                    totalSlidesEl.textContent = this.totalSlides;
+                }
+            }
+            
+            startAutoPlay() {
+                if (this.autoPlayInterval) {
+                    clearInterval(this.autoPlayInterval);
+                }
+                
+                this.autoPlayInterval = setInterval(() => {
+                    this.nextSlide();
+                }, this.autoPlayDelay);
+                
+                this.isPlaying = true;
+                this.updatePlayButton();
+            }
+            
+            pauseAutoPlay() {
+                if (this.autoPlayInterval) {
+                    clearInterval(this.autoPlayInterval);
+                    this.autoPlayInterval = null;
+                }
+                
+                this.isPlaying = false;
+                this.updatePlayButton();
+            }
+            
+            restartAutoPlay() {
+                this.pauseAutoPlay();
+                if (this.isPlaying) {
+                    this.startAutoPlay();
+                }
+            }
+            
+            toggleAutoPlay() {
+                if (this.isPlaying) {
+                    this.pauseAutoPlay();
+                } else {
+                    this.startAutoPlay();
+                }
+            }
+            
+            updatePlayButton() {
+                const pauseBtn = document.getElementById('pauseBtn');
+                if (pauseBtn) {
+                    pauseBtn.textContent = this.isPlaying ? '⏸' : '▶';
+                    pauseBtn.title = this.isPlaying ? 'Пауза' : 'Продолжить';
+                }
+            }
+            
+            addKeyboardListeners() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') {
+                        this.prevSlide();
+                    } else if (e.key === 'ArrowRight') {
+                        this.nextSlide();
+                    } else if (e.key === ' ') {
+                        e.preventDefault();
+                        this.toggleAutoPlay();
+                    }
+                });
+            }
+            
+            addHoverListeners() {
+                const carousel = document.querySelector('.carousel-container');
+                if (!carousel) return;
+                
+                carousel.addEventListener('mouseenter', () => {
+                    this.pauseAutoPlay();
+                });
+                
+                carousel.addEventListener('mouseleave', () => {
+                    if (this.isPlaying) {
+                        this.startAutoPlay();
+                    }
+                });
             }
         }
 
-        // Корзина (базовая)
-        let cart = JSON.parse(localStorage.getItem('furnitureCart')) || { items: [], count: 0, total: 0 };
-
-        function addToCart(productId) {
-            const productCards = {
-                1: { id: 1, name: 'Диван "Комфорт"', price: 45990, image: '🛋️' },
-                2: { id: 2, name: 'Кровать "Спокойствие"', price: 32990, image: '🛏️' },
-                3: { id: 3, name: 'Стол обеденный', price: 18990, image: '🪑' },
-                4: { id: 4, name: 'Шкаф "Гармония"', price: 27990, image: '🗄️' }
-            };
-
-            const product = productCards[productId];
-            if (!product) return;
-
-            const existing = cart.items.find(item => item.id === productId);
-            if (existing) {
-                existing.quantity++;
-            } else {
-                cart.items.push({ ...product, quantity: 1 });
+        // Загрузка популярных товаров
+        async function loadPopularProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+                
+                const container = document.getElementById('popularProducts');
+                
+                if (!data.products || data.products.length === 0) {
+                    container.innerHTML = '<p>Товары временно недоступны</p>';
+                    return;
+                }
+                
+                // Берем первые 4 товара
+                const popularProducts = data.products.slice(0, 4);
+                
+                container.innerHTML = '';
+                
+                popularProducts.forEach(product => {
+                    const imageMap = {
+                        1: '/static/images/products/divan1.jpg',
+                        2: '/static/images/products/divan2.jpg',
+                        3: '/static/images/products/divan3.jpg',
+                        4: '/static/images/products/divan4.jpg',
+                        5: '/static/images/products/krovat1.jpg',
+                        6: '/static/images/products/krovat2.jpg',
+                        7: '/static/images/products/krovat3.jpg',
+                        8: '/static/images/products/krovat4.jpg',
+                        9: '/static/images/products/stol1.jpg',
+                        10: '/static/images/products/stol2.jpg',
+                        11: '/static/images/products/stol3.jpg',
+                        12: '/static/images/products/stol4.jpg'
+                    };
+                    
+                    const productImage = imageMap[product.id] || product.image;
+                    
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    card.dataset.id = product.id;
+                    
+                    card.innerHTML = `
+                        <div class="product-image">
+                            <img src="${productImage}" alt="${product.name}" style="max-width: 100%; height: 100%; object-fit: cover;" onerror="this.src='https://via.placeholder.com/200?text=${product.name}'">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">${product.name}</h3>
+                            <div class="product-price">${product.price.toLocaleString()} ₽</div>
+                            <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${productImage}')">
+                                В корзину
+                            </button>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+                
+            } catch (error) {
+                console.error('Ошибка загрузки товаров:', error);
             }
+        }
 
-            cart.count = cart.items.reduce((sum, item) => sum + item.quantity, 0);
-            cart.total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
+        // Функция добавления в корзину
+        function addToCart(id, name, price, image) {
+            let cart = JSON.parse(localStorage.getItem('furnitureCart'));
+            if (!cart) {
+                cart = { items: [], count: 0, total: 0 };
+            }
+            
+            const existingItem = cart.items.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.quantity = (existingItem.quantity || 1) + 1;
+            } else {
+                cart.items.push({ 
+                    id: id, 
+                    name: name, 
+                    price: price, 
+                    image: image, 
+                    quantity: 1 
+                });
+            }
+            
+            cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+            
             localStorage.setItem('furnitureCart', JSON.stringify(cart));
-            document.getElementById('cartCount').textContent = cart.count;
-
-            alert(`✅ "${product.name}" добавлен в корзину!`);
+            
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                cartCount.textContent = cart.count;
+            }
+            
+            alert(`✅ "${name}" добавлен в корзину!`);
         }
 
         // Инициализация
+        let carousel;
+
         document.addEventListener('DOMContentLoaded', function() {
-            window.carousel = new Carousel();
-            window.prevSlide = () => carousel.prevSlide();
-            window.nextSlide = () => carousel.nextSlide();
-
-            // Обновляем счетчик корзины
-            const savedCart = localStorage.getItem('furnitureCart');
-            if (savedCart) {
-                cart = JSON.parse(savedCart);
-                document.getElementById('cartCount').textContent = cart.count || 0;
+            try {
+                carousel = new Carousel();
+                
+                // Делаем функции доступными глобально для кнопок
+                window.prevSlide = () => carousel.prevSlide();
+                window.nextSlide = () => carousel.nextSlide();
+                window.toggleAutoPlay = () => carousel.toggleAutoPlay();
+                
+                // Загружаем популярные товары
+                loadPopularProducts();
+                
+                // Обновляем счетчик корзины
+                const savedCart = localStorage.getItem('furnitureCart');
+                if (savedCart) {
+                    const cart = JSON.parse(savedCart);
+                    document.getElementById('cartCount').textContent = cart.count || 0;
+                }
+            } catch (error) {
+                console.error('Ошибка инициализации:', error);
             }
         });
-
-        async function loadCarousel() {
-    try {
-        const response = await fetch('/api/carousel');
-        const data = await response.json();
-        
-        const slidesContainer = document.getElementById('carouselSlides');
-        const indicatorsContainer = document.getElementById('carouselIndicators');
-        
-        if (!data.slides || data.slides.length === 0) {
-            slidesContainer.innerHTML = '<div class="carousel-slide active">Нет слайдов</div>';
-            return;
-        }
-        
-        // Очищаем контейнеры
-        slidesContainer.innerHTML = '';
-        indicatorsContainer.innerHTML = '';
-        
-        // Создаём слайды
-        data.slides.forEach((slide, index) => {
-            // Слайд
-            const slideDiv = document.createElement('div');
-            slideDiv.className = `carousel-slide ${index === 0 ? 'active' : ''}`;
-            
-            let linkContent = '';
-            if (slide.link) {
-                linkContent = `<a href="${slide.link}">`;
-            }
-            
-            slideDiv.innerHTML = `
-                ${linkContent ? linkContent : ''}
-                    <img src="${slide.image_url}" alt="${slide.title}" class="carousel-image" 
-                         onerror="this.src='https://via.placeholder.com/1200x400?text=${slide.title}'">
-                    <div class="carousel-caption">
-                        <h3>${slide.title}</h3>
-                        <p>${slide.subtitle || ''}</p>
-                    </div>
-                ${linkContent ? '</a>' : ''}
-            `;
-            
-            slidesContainer.appendChild(slideDiv);
-            
-            // Индикатор
-            const indicator = document.createElement('div');
-            indicator.className = `carousel-indicator ${index === 0 ? 'active' : ''}`;
-            indicator.dataset.index = index;
-            indicator.onclick = () => goToSlide(index);
-            indicatorsContainer.appendChild(indicator);
-        });
-        
-        // Обновляем счётчик
-        document.getElementById('totalSlides').textContent = data.slides.length;
-        
-        // Инициализируем карусель
-        initCarousel(data.slides.length);
-        
-    } catch (error) {
-        console.error('Ошибка загрузки карусели:', error);
-    }
-}
-
-    // ===== УПРАВЛЕНИЕ КАРУСЕЛЬЮ =====
-    let currentSlide = 0;
-    let totalSlides = 0;
-    let autoPlayInterval;
-
-    function initCarousel(slideCount) {
-        totalSlides = slideCount;
-        currentSlide = 0;
-        
-        // Запускаем автопрокрутку
-        startAutoPlay();
-    }
-
-    function showSlide(index) {
-        const slides = document.querySelectorAll('.carousel-slide');
-        const indicators = document.querySelectorAll('.carousel-indicator');
-        
-        if (!slides.length) return;
-        
-        // Нормализуем индекс
-        if (index < 0) index = totalSlides - 1;
-        if (index >= totalSlides) index = 0;
-        
-        // Скрываем все слайды
-        slides.forEach(slide => slide.classList.remove('active'));
-        
-        // Показываем нужный
-        slides[index].classList.add('active');
-        
-        // Обновляем индикаторы
-        indicators.forEach((ind, i) => {
-            ind.classList.toggle('active', i === index);
-        });
-        
-        // Обновляем счётчик
-        document.getElementById('currentSlide').textContent = index + 1;
-        
-        currentSlide = index;
-    }
-
-    function nextSlide() {
-        showSlide(currentSlide + 1);
-        restartAutoPlay();
-    }
-
-    function prevSlide() {
-        showSlide(currentSlide - 1);
-        restartAutoPlay();
-    }
-
-    function goToSlide(index) {
-        showSlide(index);
-        restartAutoPlay();
-    }
-
-    function startAutoPlay() {
-        if (autoPlayInterval) clearInterval(autoPlayInterval);
-        autoPlayInterval = setInterval(() => {
-            nextSlide();
-        }, 5000);
-    }
-
-    function restartAutoPlay() {
-        if (autoPlayInterval) {
-            clearInterval(autoPlayInterval);
-            startAutoPlay();
-        }
-    }
-
-    // Загружаем карусель при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        loadCarousel();
-        
-        // Обработчики для паузы при наведении
-        const carousel = document.querySelector('.carousel-container');
-        if (carousel) {
-            carousel.addEventListener('mouseenter', () => {
-                if (autoPlayInterval) clearInterval(autoPlayInterval);
-            });
-            carousel.addEventListener('mouseleave', () => {
-                startAutoPlay();
-            });
-        }
-    });
     </script>
 </body>
 </html>

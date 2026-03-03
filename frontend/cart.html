@@ -146,108 +146,133 @@
     <script src="/static/auth.js"></script>
     
     <script>
-        function isUserLoggedIn() {
-            return localStorage.getItem('authToken') !== null || 
-                   localStorage.getItem('userLoggedIn') === 'true';
-        }
+    // ===== ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПУТИ К КАРТИНКЕ =====
+    function getProductImagePath(productId, defaultImage) {
+        const imageMap = {
+            1: '/static/images/products/divan1.jpg',
+            2: '/static/images/products/divan2.jpg',
+            3: '/static/images/products/divan3.jpg',
+            4: '/static/images/products/divan4.jpg',
+            5: '/static/images/products/krovat1.jpg',
+            6: '/static/images/products/krovat2.jpg',
+            7: '/static/images/products/krovat3.jpg',
+            8: '/static/images/products/krovat4.jpg',
+            9: '/static/images/products/stol1.jpg',
+            10: '/static/images/products/stol2.jpg',
+            11: '/static/images/products/stol3.jpg',
+            12: '/static/images/products/stol4.jpg'
+        };
+        
+        return imageMap[productId] || defaultImage || 'https://picsum.photos/100/100?random=' + productId;
+    }
 
-        const CartManager = {
-            loadCart() {
-                const savedCart = localStorage.getItem('furnitureCart');
-                return savedCart ? JSON.parse(savedCart) : {
-                    items: [],
-                    total: 0,
-                    count: 0
-                };
-            },
+    // ===== ФУНКЦИЯ ПРОВЕРКИ АВТОРИЗАЦИИ =====
+    function isUserLoggedIn() {
+        return localStorage.getItem('authToken') !== null;
+    }
+
+    // ===== УПРАВЛЕНИЕ КОРЗИНОЙ =====
+    const CartManager = {
+        loadCart() {
+            const savedCart = localStorage.getItem('furnitureCart');
+            return savedCart ? JSON.parse(savedCart) : {
+                items: [],
+                total: 0,
+                count: 0
+            };
+        },
+        
+        saveCart(cart) {
+            localStorage.setItem('furnitureCart', JSON.stringify(cart));
+            this.updateCartCount(cart);
+        },
+        
+        updateCartCount(cart) {
+            const cartCountElement = document.getElementById('cartCount');
+            if (cartCountElement) {
+                cartCountElement.textContent = cart.count || 0;
+            }
+        },
+        
+        recalculate(cart) {
+            cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+            return cart;
+        },
+        
+        removeItem(productId) {
+            let cart = this.loadCart();
+            cart.items = cart.items.filter(item => item.id != productId);
+            cart = this.recalculate(cart);
+            this.saveCart(cart);
+            return cart;
+        },
+        
+        updateQuantity(productId, newQuantity) {
+            if (newQuantity < 1) return this.removeItem(productId);
             
-            saveCart(cart) {
-                localStorage.setItem('furnitureCart', JSON.stringify(cart));
-                this.updateCartCount(cart);
-            },
-            
-            updateCartCount(cart) {
-                const cartCountElement = document.getElementById('cartCount');
-                if (cartCountElement) {
-                    cartCountElement.textContent = cart.count || 0;
-                }
-            },
-            
-            recalculate(cart) {
-                cart.count = cart.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
-                cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
-                return cart;
-            },
-            
-            removeItem(productId) {
-                let cart = this.loadCart();
-                cart.items = cart.items.filter(item => item.id != productId);
+            let cart = this.loadCart();
+            const item = cart.items.find(item => item.id == productId);
+            if (item) {
+                item.quantity = newQuantity;
                 cart = this.recalculate(cart);
                 this.saveCart(cart);
-                return cart;
-            },
-            
-            updateQuantity(productId, newQuantity) {
-                if (newQuantity < 1) return this.removeItem(productId);
-                
-                let cart = this.loadCart();
-                const item = cart.items.find(item => item.id == productId);
-                if (item) {
-                    item.quantity = newQuantity;
-                    cart = this.recalculate(cart);
-                    this.saveCart(cart);
-                }
-                return cart;
-            },
-            
-            clearCart() {
-                const emptyCart = { items: [], total: 0, count: 0 };
-                this.saveCart(emptyCart);
-                return emptyCart;
             }
-        };
+            return cart;
+        },
+        
+        clearCart() {
+            const emptyCart = { items: [], total: 0, count: 0 };
+            this.saveCart(emptyCart);
+            return emptyCart;
+        }
+    };
 
-        function renderCart() {
-            const cart = CartManager.loadCart();
-            const container = document.getElementById('cartContent');
-            const authMessage = document.getElementById('authMessage');
-            const loggedIn = isUserLoggedIn();
-            
-            if (authMessage) {
-                authMessage.style.display = loggedIn ? 'none' : 'block';
-            }
-            
-            if (!cart.items || cart.items.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-cart">
-                        <div class="empty-cart-icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <h2>Ваша корзина пуста</h2>
-                        <p>Добавьте мебель из нашего каталога</p>
-                        <a href="/products" class="continue-shopping-btn">
-                            <i class="fas fa-arrow-left"></i> Перейти в каталог
-                        </a>
-                    </div>
-                `;
-                return;
-            }
-            
-            const checkoutButton = loggedIn 
-                ? `<button class="checkout-btn" onclick="openCheckoutModal()">
-                       <i class="fas fa-credit-card"></i> Оформить заказ
-                   </button>`
-                : `<a href="/" class="checkout-btn" style="display: block; text-align: center;">
-                       <i class="fas fa-sign-in-alt"></i> Войти для оформления
-                   </a>`;
-            
+    // ===== РЕНДЕРИНГ КОРЗИНЫ =====
+    function renderCart() {
+        const cart = CartManager.loadCart();
+        const container = document.getElementById('cartContent');
+        const authMessage = document.getElementById('authMessage');
+        const loggedIn = isUserLoggedIn();
+        
+        if (authMessage) {
+            authMessage.style.display = loggedIn ? 'none' : 'block';
+        }
+        
+        if (!cart.items || cart.items.length === 0) {
             container.innerHTML = `
-                <div class="cart-content">
-                    <div class="cart-items">
-                        ${cart.items.map(item => `
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h2>Ваша корзина пуста</h2>
+                    <p>Добавьте мебель из нашего каталога</p>
+                    <a href="/products" class="continue-shopping-btn">
+                        <i class="fas fa-arrow-left"></i> Перейти в каталог
+                    </a>
+                </div>
+            `;
+            return;
+        }
+        
+        const checkoutButton = loggedIn 
+            ? `<button class="checkout-btn" onclick="openCheckoutModal()">
+                   <i class="fas fa-credit-card"></i> Оформить заказ
+               </button>`
+            : `<a href="/" class="checkout-btn" style="display: block; text-align: center;">
+                   <i class="fas fa-sign-in-alt"></i> Войти для оформления
+               </a>`;
+        
+        container.innerHTML = `
+            <div class="cart-content">
+                <div class="cart-items">
+                    ${cart.items.map(item => {
+                        const imagePath = getProductImagePath(item.id, item.image);
+                        
+                        return `
                             <div class="cart-item" data-id="${item.id}">
                                 <div class="cart-item-image">
-                                    <span style="font-size: 3em;">${item.image || '🪑'}</span>
+                                    <img src="${imagePath}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: cover;" onerror="this.src='https://picsum.photos/100/100?random=${item.id}'">
                                 </div>
                                 <div class="cart-item-details">
                                     <h3 class="cart-item-title">${item.name || 'Товар'}</h3>
@@ -276,227 +301,136 @@
                                     </button>
                                 </div>
                             </div>
-                        `).join('')}
-                    </div>
-                    
-                    <div class="cart-sidebar">
-                        <div class="cart-total-section">
-                            <h2>Итоги заказа</h2>
-                            
-                            <div class="summary-item">
-                                <span>Товары (${cart.count || 0} шт.)</span>
-                                <span>${cart.total.toLocaleString()} ₽</span>
-                            </div>
-                            
-                            <div class="summary-item total">
-                                <span>Итого к оплате:</span>
-                                <span id="cartTotal">${cart.total.toLocaleString()} ₽</span>
-                            </div>
-                            
-                            ${checkoutButton}
-                            
-                            <a href="/products" class="continue-shopping-btn" style="display: block; text-align: center; margin-top: 15px;">
-                                <i class="fas fa-arrow-left"></i> Продолжить покупки
-                            </a>
+                        `;
+                    }).join('')}
+                </div>
+                
+                <div class="cart-sidebar">
+                    <div class="cart-total-section">
+                        <h2>Итоги заказа</h2>
+                        
+                        <div class="summary-item">
+                            <span>Товары (${cart.count || 0} шт.)</span>
+                            <span>${cart.total.toLocaleString()} ₽</span>
                         </div>
+                        
+                        <div class="summary-item total">
+                            <span>Итого к оплате:</span>
+                            <span id="cartTotal">${cart.total.toLocaleString()} ₽</span>
+                        </div>
+                        
+                        ${checkoutButton}
+                        
+                        <a href="/products" class="continue-shopping-btn" style="display: block; text-align: center; margin-top: 15px;">
+                            <i class="fas fa-arrow-left"></i> Продолжить покупки
+                        </a>
                     </div>
                 </div>
-            `;
-        }
+            </div>
+        `;
+    }
 
-        function changeQuantity(productId, newQuantity) {
-            if (newQuantity < 1) {
-                removeFromCart(productId);
-                return;
-            }
-            CartManager.updateQuantity(productId, newQuantity);
+    // ===== ФУНКЦИИ УПРАВЛЕНИЯ КОРЗИНОЙ =====
+    function changeQuantity(productId, newQuantity) {
+        if (newQuantity < 1) {
+            removeFromCart(productId);
+            return;
+        }
+        CartManager.updateQuantity(productId, newQuantity);
+        renderCart();
+    }
+
+    function updateQuantity(productId, value) {
+        const quantity = parseInt(value);
+        if (isNaN(quantity) || quantity < 1) return;
+        changeQuantity(productId, quantity);
+    }
+
+    function removeFromCart(productId) {
+        if (confirm('Удалить товар из корзины?')) {
+            CartManager.removeItem(productId);
             renderCart();
+            showNotification('Товар удален из корзины');
         }
+    }
 
-        function updateQuantity(productId, value) {
-            const quantity = parseInt(value);
-            if (isNaN(quantity) || quantity < 1) return;
-            changeQuantity(productId, quantity);
+    function openCheckoutModal() {
+        if (!isUserLoggedIn()) {
+            alert('Для оформления заказа необходимо войти в систему');
+            return;
         }
-
-        function removeFromCart(productId) {
-            if (confirm('Удалить товар из корзины?')) {
-                CartManager.removeItem(productId);
-                renderCart();
-                showNotification('Товар удален из корзины');
-            }
+        
+        const cart = CartManager.loadCart();
+        if (cart.items.length === 0) {
+            alert('Корзина пуста!');
+            return;
         }
+        
+        document.getElementById('modalTotal').textContent = cart.total.toLocaleString();
+        document.getElementById('checkoutModal').style.display = 'block';
+    }
 
-        function openCheckoutModal() {
-            if (!isUserLoggedIn()) {
-                alert('Для оформления заказа необходимо войти в систему');
-                return;
-            }
-            
-            const cart = CartManager.loadCart();
-            if (cart.items.length === 0) {
-                alert('Корзина пуста!');
-                return;
-            }
-            
-            document.getElementById('modalTotal').textContent = cart.total.toLocaleString();
-            document.getElementById('checkoutModal').style.display = 'block';
-        }
+    function closeCheckoutModal() {
+        document.getElementById('checkoutModal').style.display = 'none';
+        document.getElementById('checkoutForm').reset();
+    }
 
-        function closeCheckoutModal() {
-            document.getElementById('checkoutModal').style.display = 'none';
-            document.getElementById('checkoutForm').reset();
-        }
-
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.innerHTML = `
-                <div style="
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: var(--success-green);
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: var(--radius-md);
-                    box-shadow: var(--shadow-lg);
-                    z-index: 1000;
-                    animation: slideIn 0.3s ease;
-                ">
-                    <i class="fas fa-check-circle"></i> ${message}
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 3000);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            CartManager.updateCartCount(CartManager.loadCart());
-            renderCart();
-            
-            document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                if (!isUserLoggedIn()) {
-                    alert('Необходимо войти в систему');
-                    return;
-                }
-                
-                alert('✅ Спасибо за заказ! В ближайшее время с вами свяжется менеджер.');
-                CartManager.clearCart();
-                renderCart();
-                closeCheckoutModal();
-            });
-            
-            document.getElementById('deliveryMethod')?.addEventListener('change', function() {
-                const addressField = document.getElementById('addressField');
-                if (addressField) {
-                    addressField.style.display = this.value === 'delivery' ? 'block' : 'none';
-                }
-            });
-            
-            window.addEventListener('click', function(e) {
-                const modal = document.getElementById('checkoutModal');
-                if (e.target === modal) {
-                    closeCheckoutModal();
-                }
-            });
-        });
-
-        const modalStyles = `
-            .modal {
-                display: none;
+    function showNotification(message) {
+        const notification = document.createElement('div');
+        notification.innerHTML = `
+            <div style="
                 position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                z-index: 1000;
-            }
-            
-            .modal-content {
-                background: white;
-                margin: 5% auto;
-                width: 90%;
-                max-width: 500px;
-                border-radius: var(--radius-lg);
-                box-shadow: var(--shadow-lg);
-                animation: slideUp 0.3s ease;
-            }
-            
-            .modal-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: var(--space-lg);
-                border-bottom: 1px solid #eee;
-            }
-            
-            .modal-header h2 {
-                color: var(--primary-wood);
-                margin: 0;
-            }
-            
-            .close-modal {
-                background: none;
-                border: none;
-                font-size: 2em;
-                cursor: pointer;
-                color: var(--gray-dark);
-            }
-            
-            .modal-body {
-                padding: var(--space-lg);
-            }
-            
-            .submit-order-btn {
-                width: 100%;
-                padding: 15px;
-                background: linear-gradient(135deg, var(--primary-wood), var(--secondary-wood));
+                top: 20px;
+                right: 20px;
+                background: var(--success-green);
                 color: white;
-                border: none;
-                border-radius: var(--radius-sm);
-                font-size: 1.1em;
-                font-weight: bold;
-                cursor: pointer;
-            }
-            
-            .order-summary {
-                background: var(--gray-light);
-                padding: var(--space-md);
-                border-radius: var(--radius-sm);
-                margin: var(--space-md) 0;
-                text-align: center;
-            }
-            
-            @keyframes slideUp {
-                from {
-                    transform: translateY(50px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-            
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
+                padding: 15px 20px;
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            ">
+                <i class="fas fa-check-circle"></i> ${message}
+            </div>
         `;
         
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = modalStyles;
-        document.head.appendChild(styleSheet);
-    </script>
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    document.addEventListener('DOMContentLoaded', function() {
+        CartManager.updateCartCount(CartManager.loadCart());
+        renderCart();
+        
+        document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!isUserLoggedIn()) {
+                alert('Необходимо войти в систему');
+                return;
+            }
+            
+            alert('✅ Спасибо за заказ! В ближайшее время с вами свяжется менеджер.');
+            CartManager.clearCart();
+            renderCart();
+            closeCheckoutModal();
+        });
+        
+        document.getElementById('deliveryMethod')?.addEventListener('change', function() {
+            const addressField = document.getElementById('addressField');
+            if (addressField) {
+                addressField.style.display = this.value === 'delivery' ? 'block' : 'none';
+            }
+        });
+        
+        window.addEventListener('click', function(e) {
+            const modal = document.getElementById('checkoutModal');
+            if (e.target === modal) {
+                closeCheckoutModal();
+            }
+        });
+    });
+</script>
 </body>
 </html>
