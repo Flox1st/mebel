@@ -73,9 +73,9 @@
                         <label for="categoryFilter">Категория:</label>
                         <select id="categoryFilter" class="filter-select">
                             <option value="all">Все товары</option>
-                            <option value="Диваны">Диваны</option>
-                            <option value="Кровати">Кровати</option>
-                            <option value="Столы">Столы</option>
+                            <option value="sofas">Диваны</option>
+                            <option value="beds">Кровати</option>
+                            <option value="tables">Столы</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -110,10 +110,9 @@
     </footer>
 
     <script src="/static/auth.js"></script>
-    <script>
-    // ========== ФУНКЦИЯ ДЛЯ КАРТИНОК ==========
-    function getProductImage(productId, emoji) {
-        // Маппинг ID товаров на пути к картинкам
+<script>
+    // ===== ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ПУТИ К КАРТИНКЕ =====
+    function getProductImagePath(productId, defaultImage) {
         const imageMap = {
             1: '/static/images/products/divan1.jpg',
             2: '/static/images/products/divan2.jpg',
@@ -129,18 +128,25 @@
             12: '/static/images/products/stol4.jpg'
         };
         
-        const imagePath = imageMap[productId];
-        if (imagePath) {
-            return `<img src="${imagePath}" alt="Product" style="width: 100%; height: 100%; object-fit: cover;">`;
-        } else {
-            return `<span style="font-size: 4em;">${emoji}</span>`;
-        }
+        return imageMap[productId] || defaultImage || 'https://picsum.photos/200/200?random=' + productId;
     }
 
-    // Функция добавления в корзину
+    // ===== ФУНКЦИЯ ДЛЯ НАЗВАНИЙ КАТЕГОРИЙ =====
+    function getCategoryName(category) {
+        const categories = {
+            'sofas': 'Диваны',
+            'beds': 'Кровати',
+            'tables': 'Столы'
+        };
+        return categories[category] || category;
+    }
+
+    // ===== ФУНКЦИЯ ДОБАВЛЕНИЯ В КОРЗИНУ =====
     function addToCart(id, name, price, image) {
         let cart = JSON.parse(localStorage.getItem('furnitureCart'));
-        if (!cart) cart = { items: [], count: 0, total: 0 };
+        if (!cart) {
+            cart = { items: [], count: 0, total: 0 };
+        }
         
         const existingItem = cart.items.find(item => item.id === id);
         if (existingItem) {
@@ -159,162 +165,110 @@
         cart.total = cart.items.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
         
         localStorage.setItem('furnitureCart', JSON.stringify(cart));
-        document.getElementById('cartCount').textContent = cart.count;
+        
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount) {
+            cartCount.textContent = cart.count;
+        }
+        
         alert(`✅ "${name}" добавлен в корзину!`);
     }
 
-    // Хранилище для всех загруженных товаров
-    let allProducts = [];
-
-    // Функция фильтрации товаров
-    function filterProducts() {
-        const searchQuery = document.getElementById('searchInput').value.toLowerCase().trim();
-        const category = document.getElementById('categoryFilter').value;
-        
-        // Фильтруем по поиску и категории
-        const filtered = allProducts.filter(product => {
-            const matchesSearch = product.name.toLowerCase().includes(searchQuery);
-            const matchesCategory = category === 'all' || product.category === category;
-            return matchesSearch && matchesCategory;
-        });
-
-        // Применяем сортировку
-        const sortType = document.getElementById('sortFilter').value;
-        sortProducts(filtered, sortType);
-        
-        // Отображаем отфильтрованные товары
-        displayProducts(filtered);
-    }
-
-    // Функция сортировки
-    function sortProducts(products, sortType) {
-        switch(sortType) {
-            case 'price-asc':
-                products.sort((a, b) => a.price - b.price);
-                break;
-            case 'price-desc':
-                products.sort((a, b) => b.price - a.price);
-                break;
-            case 'popular':
-            default:
-                // По умолчанию сортируем по популярности (можно добавить поле popularity)
-                products.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-                break;
-        }
-    }
-
-    // Функция отображения товаров
-    function displayProducts(products) {
-        const grid = document.getElementById('productsGrid');
-        grid.innerHTML = '';
-        
-        if (products.length === 0) {
-            grid.innerHTML = '<div style="text-align: center; padding: 50px;">Товары не найдены</div>';
-            return;
-        }
-        
-        products.forEach(product => {
-            const card = document.createElement('div');
-            card.className = 'product-card-full';
-            card.dataset.category = product.category;
-            
-            const productImage = getProductImage(product.id, product.image);
-            
-            card.innerHTML = `
-                <div class="product-image-full">
-                    ${productImage}
-                </div>
-                <div class="product-details">
-                    <h3 class="product-title">${product.name}</h3>
-                    <p class="product-description">${product.description.substring(0, 50)}...</p>
-                    <div class="product-price">${product.price.toLocaleString()} ₽</div>
-                    <div class="product-meta">
-                        <span class="product-category">${product.category}</span>
-                        <span class="product-stock">${product.stock}</span>
-                    </div>
-                    <a href="/product/${product.id}" class="product-details-btn" style="display: block; text-align: center;">
-                        <i class="fas fa-info-circle"></i> Подробнее
-                    </a>
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${product.image}')">
-                        <i class="fas fa-cart-plus"></i> В корзину
-                    </button>
-                </div>
-            `;
-            
-            grid.appendChild(card);
-        });
-    }
-
-    // Функция загрузки товаров
+    // ===== ЗАГРУЗКА ТОВАРОВ =====
     async function loadProducts() {
         console.log("Загружаю товары...");
         
         const category = document.getElementById('categoryFilter').value;
+        console.log("Выбрана категория:", category);
+        
         const url = category === 'all' 
             ? '/api/products' 
             : `/api/products?category=${category}`;
         
+        console.log("Запрашиваю URL:", url);
+        
         try {
             const response = await fetch(url);
+            console.log("Статус ответа:", response.status);
+            
             const data = await response.json();
+            console.log("Получено товаров:", data.products.length);
             
-            allProducts = data.products; // Сохраняем все товары
-            filterProducts(); // Применяем фильтрацию
+            const grid = document.getElementById('productsGrid');
             
-            console.log("Товары загружены:", allProducts.length);
+            if (!grid) {
+                console.error("❌ Элемент productsGrid не найден!");
+                return;
+            }
+            
+            grid.innerHTML = '';
+            
+            if (data.products.length === 0) {
+                grid.innerHTML = '<div style="text-align: center; padding: 50px;">Товары не найдены</div>';
+                return;
+            }
+            
+            data.products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card-full';
+                card.dataset.category = product.category;
+                
+                const imagePath = getProductImagePath(product.id, product.image);
+                
+                card.innerHTML = `
+                    <div class="product-image-full">
+                        <img src="${imagePath}" alt="${product.name}" style="width: 100%; height: 200px; object-fit: cover;" onerror="this.src='https://picsum.photos/200/200?random=${product.id}'">
+                    </div>
+                    <div class="product-details">
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-description">${product.description.substring(0, 50)}...</p>
+                        <div class="product-price">${product.price.toLocaleString()} ₽</div>
+                        <div class="product-meta">
+                            <span class="product-category">${getCategoryName(product.category)}</span>
+                            <span class="product-stock">${product.stock}</span>
+                        </div>
+                        <a href="/product/${product.id}" class="product-details-btn" style="display: block; text-align: center;">
+                            <i class="fas fa-info-circle"></i> Подробнее
+                        </a>
+                        <button class="add-to-cart-btn" onclick="addToCart(${product.id}, '${product.name}', ${product.price}, '${imagePath}')">
+                            <i class="fas fa-cart-plus"></i> В корзину
+                        </button>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+            
+            console.log("✅ Товары отображены");
             
         } catch (error) {
-            console.error("Ошибка загрузки товаров:", error);
+            console.error("❌ Ошибка загрузки товаров:", error);
         }
     }
 
-    // Функция сброса всех фильтров
-    function resetFilters() {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('categoryFilter').value = 'all';
-        document.getElementById('sortFilter').value = 'popular';
-        loadProducts(); // Перезагружаем товары
-    }
-
-    // Debounce функция для поиска
-    function debounce(func, delay) {
-        let timeoutId;
-        return function (...args) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
-
-    // Слушатели событий
-    document.getElementById('categoryFilter').addEventListener('change', function() {
-        loadProducts(); // При смене категории загружаем новые данные с сервера
-    });
-
+    // ===== ОБРАБОТЧИКИ СОБЫТИЙ =====
+    document.getElementById('categoryFilter').addEventListener('change', loadProducts);
+    
+    // Сортировка (пока заглушка)
     document.getElementById('sortFilter').addEventListener('change', function() {
-        filterProducts(); // Применяем сортировку к текущим данным
+        console.log("Сортировка будет реализована позже");
     });
-
-    // Поиск с debounce для избежания частых вызовов
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', debounce(function() {
-        filterProducts();
-    }, 300));
-
-    // Кнопка сброса фильтров
-    document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
-
-    // Загрузка при старте
+    
+    // ===== ЗАГРУЗКА ПРИ СТАРТЕ =====
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("Страница загружена");
+        console.log("Страница каталога загружена");
         loadProducts();
         
         const savedCart = localStorage.getItem('furnitureCart');
         if (savedCart) {
             const cart = JSON.parse(savedCart);
-            document.getElementById('cartCount').textContent = cart.count || 0;
+            const cartCount = document.getElementById('cartCount');
+            if (cartCount) {
+                cartCount.textContent = cart.count || 0;
+            }
         }
     });
-    </script>
+</script>
     
 </body>
 </html>
